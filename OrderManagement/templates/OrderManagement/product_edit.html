@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5">
+  <h2 class="mb-4">Edit Product</h2>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+      {% if form.errors %}
+      <div class="alert alert-danger">
+        {{ form.errors }}
+      </div>
+      {% endif %}
+
+      {% if formset.errors %}
+      <div class="alert alert-danger">
+        {{ formset.errors }}
+      </div>
+      {% endif %}
+    <div class="card mb-4 shadow-sm p-4 bg-dark">
+      {{ form.as_p }}
+    </div>
+    <div class="card shadow-sm p-4 mb-4 bg-dark">
+      <h4>Additional Images</h4>
+      {{ formset.management_form }}
+      <div class="row">
+        {% for subform in formset %}
+          <div class="col-md-4 mb-3">
+            {{ subform.id }}
+            {% if subform.instance.pk and subform.instance.image %}
+              <img src="{{ subform.instance.image.url }}" class="img-fluid rounded mb-2">
+            {% endif %}
+            {{ subform.image }}
+            {% if subform.DELETE %}
+              <div class="form-check mt-1">
+                {{ subform.DELETE }}
+                <label class="form-check-label">Delete</label>
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a href="{% url 'product_list' %}" class="btn btn-secondary">Cancel</a>
+
+  </form>
+</div>
+{% endblock %}

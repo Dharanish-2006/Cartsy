@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block navbar %}
+{% endblock %}
+{% block content %}
+
+<style>
+  body {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  }
+
+  .signup-card {
+    animation: slideUp 0.6s ease;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .password-wrapper {
+    position: relative;
+  }
+
+  .password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #000;
+    z-index: 5;
+  }
+
+  .password-toggle:hover {
+    color: grey;
+  }
+
+  input[type="password"],
+  input[type="text"] {
+    padding-right: 42px !important;
+  }
+</style>
+
+<div class="container d-flex align-items-center justify-content-center min-vh-100">
+  <div class="col-12 col-sm-10 col-md-6 col-lg-4">
+    <div class="card bg-dark text-white shadow-lg border-0 rounded-4 signup-card">
+      <div class="card-body p-4">
+
+        <h3 class="text-center mb-4 fw-bold">Create Account</h3>
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <!-- Username -->
+          <div class="mb-3">
+            {{ form.username.label_tag }}
+            {{ form.username }}
+            {% if form.username.errors %}
+              <small class="text-danger">{{ form.username.errors }}</small>
+            {% endif %}
+          </div>
+
+          <!-- Email -->
+          <div class="mb-3">
+            {{ form.email.label_tag }}
+            {{ form.email }}
+            {% if form.email.errors %}
+              <small class="text-danger">{{ form.email.errors }}</small>
+            {% endif %}
+          </div>
+
+          <!-- Password -->
+          <div class="mb-3">
+            {{ form.password1.label_tag }}
+            <div class="password-wrapper">
+              {{ form.password1 }}
+              <span class="password-toggle"
+                    onclick="togglePassword('id_password1', this)">
+                <i class="bi bi-eye"></i>
+              </span>
+            </div>
+            {% if form.password1.errors %}
+              <small class="text-danger d-block mt-1">
+                {{ form.password1.errors }}
+              </small>
+            {% endif %}
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="mb-3">
+            {{ form.password2.label_tag }}
+            <div class="password-wrapper">
+              {{ form.password2 }}
+              <span class="password-toggle"
+                    onclick="togglePassword('id_password2', this)">
+                <i class="bi bi-eye dark"></i>
+              </span>
+            </div>
+            {% if form.password2.errors %}
+              <small class="text-danger d-block mt-1">
+                {{ form.password2.errors }}
+              </small>
+            {% endif %}
+          </div>
+
+          <button type="submit"
+                  class="btn btn-primary w-100 rounded-pill mt-3">
+            Sign Up
+          </button>
+        </form>
+
+        <hr class="border-secondary my-4">
+
+        <p class="text-center mb-0">
+          Already have an account?
+          <a href="{% url 'login' %}" class="text-info">Login</a>
+        </p>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PASSWORD TOGGLE SCRIPT -->
+<script>
+  function togglePassword(fieldId, wrapper) {
+    const input = document.getElementById(fieldId);
+    const icon = wrapper.querySelector("i");
+
+    if (input.type === "password") {
+      input.type = "text";
+      icon.classList.replace("bi-eye", "bi-eye-slash");
+    } else {
+      input.type = "password";
+      icon.classList.replace("bi-eye-slash", "bi-eye");
+    }
+  }
+</script>
+
+{% endblock %}

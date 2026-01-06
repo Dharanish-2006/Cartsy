@@ -1,0 +1,9 @@
+DATABASE_URL=postgresql://neondb_owner:npg_DwpmLaZ4b0zB@ep-young-salad-adsmgnjp-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require
+RAZORPAY_KEY_ID=rzp_test_RxvZRvCgsmxwHq
+RAZORPAY_KEY_SECRET=hAuleVh9V4nDsez3yOWOxjGo
+EMAIL_HOST_USER=dharanishwar.2006@gmail.com
+EMAIL_HOST_PASSWORD=deualrtoxobrzgnz
+ZOHO_CLIENT_ID = 1000.113KLN6TO06IM5U167AS1IWHV4F62V
+ZOHO_CLIENT_SECRET = c31b9bb9176dc7de536a75c3a277b7e4ca66e9531e
+ZOHO_REFRESH_TOKEN = 1000.c416a0c5a0b4c8e12c066134035c46a1.ca3a39eed3b5efa4c218aa704aacf357
+ZOHO_API_DOMAIN = https://www.zohoapis.in

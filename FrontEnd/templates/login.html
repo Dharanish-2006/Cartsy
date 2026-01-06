@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block navbar %}
+{% endblock %}
+{% block content %}
+
+<style>
+  body {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  }
+
+  .login-card {
+    animation: slideUp 0.6s ease;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Password input spacing */
+  .password-wrapper input {
+    padding-right: 50px;
+  }
+
+ .password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #000;
+    z-index: 5;
+  }
+
+  .password-toggle:hover {
+    color: grey;
+  }
+</style>
+
+<div class="container d-flex align-items-center justify-content-center min-vh-100">
+  <div class="col-12 col-sm-10 col-md-6 col-lg-4">
+    <div class="card bg-dark text-white shadow-lg border-0 rounded-4 login-card">
+      <div class="card-body p-4">
+
+        <h3 class="text-center mb-4 fw-bold">Welcome Back</h3>
+
+        {% if form.errors %}
+          <div class="alert alert-danger text-center">
+            Invalid username or password
+          </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <!-- Username -->
+          <div class="mb-3">
+            {{ form.username.label_tag }}
+            {{ form.username }}
+          </div>
+
+          <!-- Password -->
+          <div class="mb-3 position-relative password-wrapper">
+            {{ form.password.label_tag }}
+            {{ form.password }}
+            <span class="password-toggle"
+                  onclick="togglePassword('id_password', this)">
+              <i class="bi bi-eye"></i>
+            </span>
+          </div>
+
+          <button type="submit"
+                  class="btn btn-primary w-100 rounded-pill mt-3">
+            Login
+          </button>
+        </form>
+
+        <hr class="border-secondary my-4">
+
+        <p class="text-center mb-0">
+          Don't have an account?
+          <a href="{% url 'signup' %}" class="text-info">Sign up</a>
+        </p>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PASSWORD TOGGLE SCRIPT -->
+<script>
+  function togglePassword(fieldId, wrapper) {
+    const input = document.getElementById(fieldId);
+    const icon = wrapper.querySelector("i");
+
+    if (input.type === "password") {
+      input.type = "text";
+      icon.classList.replace("bi-eye", "bi-eye-slash");
+    } else {
+      input.type = "password";
+      icon.classList.replace("bi-eye-slash", "bi-eye");
+    }
+  }
+</script>
+
+{% endblock %}

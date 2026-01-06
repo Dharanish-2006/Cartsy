@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container my-5">
+    <h2 class="mb-4 text-white">🛒 My Orders</h2>
+
+    {% if orders %}
+    <div class="row g-4">
+        {% for order in orders %}
+        <div class="col-lg-6">
+            <div class="card bg-dark text-white shadow border-0 h-100">
+
+                <div class="card-header d-flex justify-content-between align-items-center bg-primary">
+                    <span class="fw-semibold">Order #{{ order.id }}</span>
+
+                    <span class="badge
+                        {% if order.status == 'PENDING' %}bg-warning text-dark
+                        {% elif order.status == 'CONFIRMED' %}bg-info text-dark
+                        {% elif order.status == 'SHIPPED' %}bg-primary
+                        {% elif order.status == 'DELIVERED' %}bg-success
+                        {% elif order.status == 'CANCELLED' %}bg-danger
+                        {% else %}bg-secondary{% endif %}
+                    ">
+                        {{ order.status }}
+                    </span>
+                </div>
+
+                <div class="card-body">
+
+                    <ul class="list-group list-group-flush mb-3">
+                        {% for item in order.items.all %}
+                        <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center border-secondary">
+                            <div class="d-flex align-items-center">
+                                <img
+                                    src="{{ item.product.image.url }}"
+                                    alt="{{ item.product.product_name }}"
+                                    class="rounded me-3"
+                                    style="width:48px;height:48px;object-fit:cover;"
+                                >
+                                <div>
+                                    <div class="fw-semibold">{{ item.product.product_name }}</div>
+                                    <small class="text-muted">Qty: {{ item.quantity }}</small>
+                                </div>
+                            </div>
+                            <span class="fw-semibold">₹{{ item.price }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+
+                    <div class="d-flex justify-content-between fw-bold mb-2">
+                        <span>Total</span>
+                        <span class="text-success">₹{{ order.total_amount }}</span>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <strong>Payment:</strong>
+                        <span class="badge
+                            {% if order.payment_status == 'SUCCESS' %}bg-success
+                            {% elif order.payment_status == 'FAILED' %}bg-danger
+                            {% else %}bg-warning text-dark{% endif %}
+                        ">
+                            {% if order.payment_status == 'SUCCESS' %}
+                                Paid
+                            {% elif order.payment_status == 'FAILED' %}
+                                Failed
+                            {% else %}
+                                Pending
+                            {% endif %}
+                        </span>
+
+                        {% if order.payment_method == 'COD' %}
+                        <span class="badge bg-primary">COD</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card-footer bg-dark border-0 text-end">
+                    <a
+                        href="{% url 'order_detail' order.id %}"
+                        class="btn btn-outline-primary btn-sm rounded-pill"
+                    >
+                        View Details →
+                    </a>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="text-center mt-5 text-white">
+        <i class="bi bi-cart-x display-3"></i>
+        <p class="lead mt-3">You haven't placed any orders yet.</p>
+        <a href="{% url 'home' %}" class="btn btn-primary btn-lg rounded-pill">
+            Start Shopping
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  body {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  }
+
+  .otp-card {
+    animation: slideUp 0.6s ease;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<div class="container d-flex align-items-center justify-content-center min-vh-100">
+  <div class="col-12 col-sm-10 col-md-6 col-lg-4">
+    <div class="card bg-dark text-white shadow-lg border-0 rounded-4 otp-card">
+      <div class="card-body p-4">
+
+        <h4 class="text-center mb-3 fw-bold">Verify OTP</h4>
+        <p class="text-center text-muted">
+          Enter the OTP sent to your email
+        </p>
+
+        {% if error %}
+          <div class="alert alert-danger text-center">
+            {{ error }}
+          </div>
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <input type="text"
+                   name="otp"
+                   class="form-control text-center"
+                   placeholder="Enter 6-digit OTP"
+                   maxlength="6"
+                   required>
+          </div>
+
+          <button type="submit"
+                  class="btn btn-primary w-100 rounded-pill">
+            Verify
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

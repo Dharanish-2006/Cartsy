@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container my-5">
+    <h2 class="mb-4 text-white">Order #{{ order.id }} Details</h2>
+
+    <div class="card shadow-sm bg-dark text-white mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Order Info</h5>
+
+            <p>
+                <strong>Placed on:</strong>
+                {{ order.created_at|date:"F j, Y, g:i A" }}
+            </p>
+
+            <p>
+                <strong>Total Amount:</strong>
+                ₹{{ order.total_amount }}
+            </p>
+
+            <p>
+                <strong>Payment Method:</strong>
+                <span class="badge ms-2
+                    {% if order.payment_method == 'COD' %}bg-primary
+                    {% else %}bg-success{% endif %}
+                ">
+                    {% if order.payment_method == 'COD' %}
+                        Cash on Delivery
+                    {% else %}
+                        Online Payment
+                    {% endif %}
+                </span>
+            </p>
+
+            <p>
+                <strong>Payment Status:</strong>
+                <span class="badge ms-2
+                    {% if order.payment_status == 'SUCCESS' %}bg-success
+                    {% elif order.payment_status == 'FAILED' %}bg-danger
+                    {% else %}bg-warning text-dark{% endif %}
+                ">
+                    {% if order.payment_status == 'SUCCESS' %}
+                        Paid
+                    {% elif order.payment_status == 'FAILED' %}
+                        Failed
+                    {% else %}
+                        Pending
+                    {% endif %}
+                </span>
+            </p>
+
+            <p>
+                <strong>Order Status:</strong>
+                <span class="badge ms-2
+                    {% if order.status == 'CONFIRMED' %}bg-success
+                    {% elif order.status == 'PENDING' %}bg-warning text-dark
+                    {% elif order.status == 'CANCELLED' %}bg-danger
+                    {% else %}bg-secondary{% endif %}
+                ">
+                    {{ order.status }}
+                </span>
+            </p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm bg-dark text-white">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Products in this Order</h5>
+
+            <div class="list-group">
+                {% for item in items %}
+                <div class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center border-secondary">
+                    <div class="d-flex align-items-center">
+                        <img
+                            src="{{ item.product.image.url }}"
+                            alt="{{ item.product.product_name }}"
+                            class="rounded me-3"
+                            style="width:60px; height:60px; object-fit:cover;"
+                        >
+                        <div>
+                            <strong>{{ item.product.product_name }}</strong>
+                            <p class="mb-0 text-muted">
+                                Quantity: {{ item.quantity }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <span class="fw-bold text-success">
+                        ₹{{ item.price }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <hr class="border-secondary">
+
+            <div class="d-flex justify-content-between fs-5 fw-bold mt-3">
+                <span>Total</span>
+                <span class="text-success">₹{{ order.total_amount }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{% url 'orders' %}" class="btn btn-primary btn-lg rounded-pill">
+            Back to My Orders
+        </a>
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-lg rounded-pill ms-2">
+            Continue Shopping
+        </a>
+    </div>
+</div>
+
+{% endblock %}

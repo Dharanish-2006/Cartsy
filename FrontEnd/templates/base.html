@@ -1,0 +1,36 @@
+<!-- show_navbar = {{ show_navbar }} -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    {% load bootstrap5 %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+</head>
+<body>
+{% block navbar %}
+  {% include "navbar.html" %}
+{% endblock %}
+
+
+<style>
+body{
+    background-color: black;
+    color:white
+}
+footer{
+    position: absolute;
+    bottom:0;
+    width:100%;
+    height:60px;
+}
+
+    </style>
+
+{% block content %}
+{% endblock %}
+</body>
+</html>

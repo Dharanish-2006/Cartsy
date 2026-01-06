@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>{{ form.instance.pk|yesno:"Edit Product,Add Product" }}</h2>
+  
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div class="card mb-4 shadow-sm bg-dark">
+      <div class="card-body">
+        {{ form.as_p }}
+      </div>
+    </div>
+
+    <div class="card shadow-sm bg-dark">
+      <div class="card-body">
+        <h4>Additional Images</h4>
+        {{ formset.management_form }}
+        <div class="row">
+          {% for subform in formset %}
+            <div class="col-md-4 mb-3">
+              {{ subform.image }}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Save</button>
+  </form>
+</div>
+{% endblock %}

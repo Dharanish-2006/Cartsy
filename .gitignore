@@ -1,0 +1,21 @@
+.vercel
+*.log
+*.pyc
+__pycache__
+# Environments 
+.env 
+.venv 
+.ulagam
+world
+env/ 
+venv/ 
+ENV/ 
+env.bak/ 
+venv.bak/ 
+
+#db
+*.sqlite3
+db.sqlite3
+
+#node modules
+node_modules
