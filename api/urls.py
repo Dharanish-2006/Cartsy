@@ -21,7 +21,7 @@ from api import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('home/',include('Inventory.urls')),
+    path('',include('Inventory.urls')),
     path('orders/',include('OrderManagement.urls')),
     path('dashboard/',include('dashboard.urls')),
     path('api/',include('authentication.urls')),

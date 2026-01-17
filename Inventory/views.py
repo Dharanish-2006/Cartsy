@@ -1,43 +1,30 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
-
 from .models import product, Cart
 from OrderManagement.models import Order
-from .serializers import (
-    ProductSerializer,
-    CartSerializer,
-    OrderSerializer
-)
-
-
+from .serializers import *
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import product
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated,AllowAny
+from rest_framework.response import Response
 
-class HomeAPI(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        query = request.GET.get("q")
-        if query:
-            products = product.objects.filter(product_name__icontains=query)
-        else:
-            products = product.objects.all()[:10]
-
-        data = [
-            {
-                "id": p.id,
-                "name": p.product_name,
-                "price": p.price,
-                "image": p.image.url if p.image else "",
-            }
-            for p in products
-        ]
-
-        return Response(data)
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def HomeAPI(request):
+    products = product.objects.all()[:10]
+    data = [
+        {
+            "id": p.id,
+            "name": p.product_name,
+            "price": p.price,
+            "image": p.image.url if p.image else None
+        }
+        for p in products
+    ]
+    return Response(data)
 
 
 

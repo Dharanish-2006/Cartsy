@@ -6,7 +6,7 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-800 antialiased;
+    @apply text-gray-800 antialiased;
   }
 }
 @layer components {
@@ -28,5 +28,123 @@
 
   .card {
     @apply bg-white rounded-xl shadow-lg p-6;
+  }
+}
+/* AUTH + HOME BACKGROUND */
+.page-bg {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    #0f172a,
+    #020617,
+    #020617
+  );
+  background-size: 400% 400%;
+  animation: bgMove 10s ease infinite;
+}
+
+@keyframes bgMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.home-card {
+  max-width: 1100px;
+}
+
+.primary-btn {
+  margin-top: 18px;
+  width: 100%;
+}
+
+.home-section {
+  margin-top: 36px;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #020617;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 22px;
+}
+
+.product-card {
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+}
+
+.product-img {
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.price {
+  margin: 8px 0;
+  font-weight: 700;
+  color: rgb(var(--brand));
+}
+
+.secondary-btn {
+  margin-top: 6px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  background: #020617;
+  color: white;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.secondary-btn:hover {
+  filter: brightness(1.1);
+}
+.home-card {
+  max-width: 1100px;
+}
+
+.hero-title {
+  letter-spacing: -0.02em;
+}
+
+.product-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.product-card {
+  animation: fadeUp 0.5s ease both;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

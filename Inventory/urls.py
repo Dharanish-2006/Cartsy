@@ -19,7 +19,7 @@ from .views import *
 # ]
 
 urlpatterns = [
-    path("api/home/", HomeAPI.as_view()),
+    path("api/home/", HomeAPI),
     path("api/products/<int:pk>/", ProductDetailAPI.as_view()),
 
     path("api/cart/", CartAPI.as_view()),
