@@ -15,6 +15,8 @@ from os import getenv,path
 from urllib.parse import urlparse
 import dj_database_url
 from dotenv import load_dotenv
+from datetime import timedelta
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,7 +32,7 @@ SECRET_KEY = 'django-insecure-=cldztbc4jg&xl0!x673!*v2_=p$$eu)=7*f#d0#zs$44xx-h^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app','e-comm-ivory-six.vercel.app']
+ALLOWED_HOSTS = ['*','http://localhost:3000','127.0.0.1', '.vercel.app','e-comm-ivory-six.vercel.app']
 
 
 # Application definition
@@ -48,9 +50,14 @@ INSTALLED_APPS = [
     'bootstrap5',
     'dashboard',
     'authentication',
+    "rest_framework",
+    "rest_framework.authtoken",
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -78,6 +85,28 @@ TEMPLATES = [
         },
     },
 ]
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:8000",
+]
+
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
 
 WSGI_APPLICATION = 'api.wsgi.app'
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
@@ -170,9 +199,3 @@ ZOHO_CLIENT_ID = getenv("ZOHO_CLIENT_ID")
 ZOHO_CLIENT_SECRET = getenv("ZOHO_CLIENT_SECRET")
 ZOHO_REFRESH_TOKEN = getenv("ZOHO_REFRESH_TOKEN")
 ZOHO_API_DOMAIN = getenv("ZOHO_API_DOMAIN")
-CSRF_USE_SESSIONS = False
-CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SAMESITE = "Lax"
-SESSION_COOKIE_SAMESITE = "Lax"
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
