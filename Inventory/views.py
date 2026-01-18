@@ -1,31 +1,72 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .forms import *
-from dashboard.models import *
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+
 from .models import product, Cart
-from OrderManagement.models import Order, OrderItem
+from OrderManagement.models import Order
+from .serializers import (
+    ProductSerializer,
+    CartSerializer,
+    OrderSerializer
+)
 
-@login_required
-def Home(request):
-    dashboard, _ = Dashboard.objects.get_or_create(user=request.user)
-    widgets = Widget.objects.all()
-    query = request.GET.get("q")
-    if query:
-        products = product.objects.filter(product_name__icontains=query)
-    else:
-        products = product.objects.all()[:10]
-    return render(request, "home.html", {
-        "dashboard": dashboard,
-        "widgets": widgets,
-        "products": products
-    })
 
-@login_required
-def product_detail(request, pk):
-    item = get_object_or_404(product, pk=pk)
-    images = item.images.all()
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from .models import product
 
-    if request.method == "POST":
+class HomeAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        query = request.GET.get("q")
+        if query:
+            products = product.objects.filter(product_name__icontains=query)
+        else:
+            products = product.objects.all()[:10]
+
+        data = [
+            {
+                "id": p.id,
+                "name": p.product_name,
+                "price": p.price,
+                "image": p.image.url if p.image else "",
+            }
+            for p in products
+        ]
+
+        return Response(data)
+
+
+
+class ProductDetailAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        item = product.objects.get(pk=pk)
+        serializer = ProductSerializer(item)
+        return Response(serializer.data)
+
+
+class CartAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        items = Cart.objects.filter(user=request.user)
+        serializer = CartSerializer(items, many=True)
+        total = sum(i.total_price for i in items)
+
+        return Response({
+            "items": serializer.data,
+            "total": total
+        })
+
+    def post(self, request):
+        product_id = request.data.get("product_id")
+        item = product.objects.get(id=product_id)
+
         cart_item, created = Cart.objects.get_or_create(
             user=request.user,
             product=item
@@ -33,122 +74,36 @@ def product_detail(request, pk):
         if not created:
             cart_item.quantity += 1
         cart_item.save()
-        return redirect("cart")
 
-    return render(
-        request,
-        "product_detail.html",
-        {"product": item, "images": images}
-    )
+        return Response({"message": "Added to cart"})
 
 
-def about(request):
-    return render(request,'about.html')
-def contact(request):
-    return render(request,'contact.html')
-def service(request):
-    return render(request,'service.html')
+class UpdateCartQuantity(APIView):
+    permission_classes = [IsAuthenticated]
 
-@login_required
-def cart(request):
-    if request.method == "POST":
-        if "product_id" in request.POST:
-            product_id = request.POST.get("product_id")
-            product_obj = get_object_or_404(product, id=product_id)
+    def post(self, request):
+        item_id = request.data.get("item_id")
+        action = request.data.get("action")
 
-            cart_item, created = Cart.objects.get_or_create(
-                user=request.user,
-                product=product_obj
-            )
-            if not created:
-                cart_item.quantity += 1
-            cart_item.save()
-            return redirect("cart")
+        item = Cart.objects.get(id=item_id, user=request.user)
 
-    items = Cart.objects.filter(user=request.user)
-    total = sum(item.total_price for item in items)
-    return render(request, "cart.html", {"items": items,"total": total})
+        if action == "increase":
+            item.quantity += 1
+        elif action == "decrease":
+            item.quantity -= 1
+            if item.quantity == 0:
+                item.delete()
+                return Response({"message": "Item removed"})
 
-@login_required
-def remove_from_cart(request, pk):
-    item = get_object_or_404(Cart, user=request.user, product_id=pk)
-    item.delete()
-    return redirect("cart")
-
-@login_required
-def order(request):
-    orders = (
-        Order.objects
-        .filter(user=request.user)
-        .prefetch_related("items__product")
-        .select_related("payment")
-        .order_by("-created_at")
-    )
-    return render(request, "my_orders.html", {"orders": orders})
-
-@login_required
-def order_detail(request, pk):
-    order = get_object_or_404(Order, pk=pk, user=request.user)
-    items = order.items.select_related('product')
-    return render(request, "order_detail.html", {"order": order, "items": items})
-
-@login_required
-def delete_product(request,id):
-    if not request.user.is_staff:
-        return redirect("home")
-    selection = get_object_or_404(product, id=id)
-    selection.delete()
-    return redirect('/home/myorder/')
-
-@login_required
-def update_product(request,id):
-    if not request.user.is_staff:
-        return redirect("home")
-    selection = get_object_or_404(product, id=id)
-    context = {
-        'product_form' : product_form(instance=selection)
-    }
-    if request.method == "POST":
-        form = product_form(request.POST,instance=selection)
-        if form.is_valid():
-            form.save()
-            return redirect('/home/myorder/')
-    return render(request,'cart.html',context)
-
-@login_required
-def checkout(request):
-    if request.method == "POST":
-        request.session["full_name"] = request.POST.get("full_name","")
-        request.session["address"] = request.POST.get("address", "")
-        request.session["city"] = request.POST.get("city", "")
-        request.session["postal_code"] = request.POST.get("postal_code", "")
-        request.session["country"] = request.POST.get("country", "")
-
-
-    items = Cart.objects.filter(user=request.user)
-    if not items.exists():
-        return redirect("cart")
-    total = sum(item.total_price for item in items)
-
-    return render(request, "checkout.html", {
-        "items": items,
-        "total": total
-    })
-
-@login_required
-def increase_quantity(request, item_id):
-    item = get_object_or_404(Cart, id=item_id, user=request.user)
-    item.quantity += 1
-    item.save()
-    return redirect("cart")
-
-
-@login_required
-def decrease_quantity(request, item_id):
-    item = get_object_or_404(Cart, id=item_id, user=request.user)
-    if item.quantity > 1:
-        item.quantity -= 1
         item.save()
-    else:
-        item.delete()
-    return redirect("cart")
+        return Response({"message": "Quantity updated"})
+
+
+
+class OrdersAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        orders = Order.objects.filter(user=request.user)
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data)
