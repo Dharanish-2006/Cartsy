@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://cartsy-two.vercel.app//api",
+  baseURL: "https://cartsy-two.vercel.app/api",
 });
 
 api.interceptors.request.use((config) => {
@@ -51,7 +51,7 @@ api.interceptors.response.use(
         const refresh = localStorage.getItem("refresh");
 
         const res = await axios.post(
-          "http://127.0.0.1:8000/api/token/refresh/",
+          "https://cartsy-two.vercel.app/api/token/refresh/",
           { refresh }
         );
 
