@@ -47,83 +47,84 @@ export default function CheckoutPage() {
     setAddress({ ...address, [e.target.name]: e.target.value });
   };
 
-const placeOrder = async () => {
-  try {
-    if (
-      !address.full_name ||
-      !address.address ||
-      !address.city ||
-      !address.postal_code ||
-      !address.country
-    ) {
-      alert("Please fill all shipping details");
-      return;
-    }
+  const placeOrder = async () => {
+    try {
+      if (
+        !address.full_name ||
+        !address.address ||
+        !address.city ||
+        !address.postal_code ||
+        !address.country
+      ) {
+        alert("Please fill all shipping details");
+        return;
+      }
 
-    const token = localStorage.getItem("access");
+      const token = localStorage.getItem("access");
 
-    /* ---------- CASH ON DELIVERY ---------- */
-    if (paymentMethod === "COD") {
-      await api.post(
-        "orders/create/",
-        {
-          full_name: address.full_name,
-          address: address.address,
-          city: address.city,
-          postal_code: address.postal_code,
-          country: address.country,
-          payment_method: "COD",
-          total_amount: total,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
+      /* ---------- CASH ON DELIVERY ---------- */
+      if (paymentMethod === "COD") {
+        await api.post(
+          "orders/create/",
+          {
+            full_name: address.full_name,
+            address: address.address,
+            city: address.city,
+            postal_code: address.postal_code,
+            country: address.country,
+            payment_method: "COD",
+            total_amount: total,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+
+        router.push("/orders");
+        return;
+      }
+
+      /* ---------- RAZORPAY ---------- */
+      if (paymentMethod === "ONLINE") {
+        const loaded = await loadRazorpay();
+
+        if (!loaded) {
+          alert("Razorpay SDK failed to load");
+          return;
         }
-      );
 
-      router.push("/orders");
-      return;
+        const token = localStorage.getItem("access");
+
+        const res = await api.post(
+          "orders/razorpay/",
+          {
+            ...address,
+          },
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+
+        const options = {
+          key: res.data.key,
+          amount: res.data.amount,
+          currency: "INR",
+          name: "Cartsy",
+          description: "Order Payment",
+          order_id: res.data.order_id,
+          handler: function () {
+            router.push("/orders");
+          },
+          theme: {
+            color: "#4f46e5",
+          },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      }
+    } catch (err) {
+      console.log(err);
     }
-
-    /* ---------- RAZORPAY ---------- */
-if (paymentMethod === "ONLINE") {
-  const token = localStorage.getItem("access");
-
-  const res = await api.post(
-    "orders/razorpay/",
-    {
-      full_name: address.full_name,
-      address: address.address,
-      city: address.city,
-      postal_code: address.postal_code,
-      country: address.country,
-    },
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-
-  const options = {
-    key: res.data.key,          
-    amount: res.data.amount,
-    currency: "INR",
-    name: "Cartsy",
-    description: "Order Payment",
-    order_id: res.data.order_id,
-    handler: function (response) {
-      router.push("/orders");
-    },
-    theme: {
-      color: "#4f46e5",
-    },
   };
-
-  const rzp = new window.Razorpay(options);
-  rzp.open();
-}
-
-}catch(err){
-  console.log(err);
-};
-}
-
 
   if (loading) {
     return (
