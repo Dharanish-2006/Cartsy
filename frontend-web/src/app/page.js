@@ -93,7 +93,7 @@ export default function HomePage() {
                 : products.map((p) => (
                     <div key={p.id} className="product-card">
                       <Image
-                        src={`http://127.0.0.1:8000${p.image}`}
+                        src={`https://cartsy-ht0x.onrender.com/${p.image}`}
                         alt={`${p.product_name}`}
                         width={400}
                         height={260}

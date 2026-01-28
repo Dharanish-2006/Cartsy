@@ -87,7 +87,7 @@ export default function CartPage() {
                   className="flex items-center gap-4 p-4 rounded-xl bg-slate-50"
                 >
                   <Image
-                    src={`http://127.0.0.1:8000${item.product.image}`}
+                    src={`https://cartsy-ht0x.onrender.com/${item.product.image}`}
                     alt={item.product.product_name}
                     width={90}
                     height={90}

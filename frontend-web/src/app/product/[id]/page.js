@@ -133,7 +133,7 @@ export default function ProductDetailPage() {
               onTouchEnd={onTouchEnd}
             >
               <Image
-                src={`http://127.0.0.1:8000${images[activeIndex]}`}
+                src={`https://cartsy-ht0x.onrender.com/${images[activeIndex]}`}
                 alt={product.product_name}
                 fill
                 priority
@@ -145,7 +145,7 @@ export default function ProductDetailPage() {
                 <div
                   className="absolute inset-0 pointer-events-none"
                   style={{
-                    backgroundImage: `url(http://127.0.0.1:8000${images[activeIndex]})`,
+                    backgroundImage: `url(https://cartsy-ht0x.onrender.com/${images[activeIndex]})`,
                     backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
                     backgroundSize: "200%",
                   }}
@@ -229,7 +229,7 @@ export default function ProductDetailPage() {
           onClick={() => setLightboxOpen(false)}
         >
           <Image
-            src={`http://127.0.0.1:8000${images[activeIndex]}`}
+            src={`https://cartsy-ht0x.onrender.com/${images[activeIndex]}`}
             alt="fullscreen"
             width={1000}
             height={800}
