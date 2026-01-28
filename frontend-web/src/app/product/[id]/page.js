@@ -165,7 +165,7 @@ export default function ProductDetailPage() {
                   }`}
                 >
                   <Image
-                    src={`http://127.0.0.1:8000${img}`}
+                    src={`https://cartsy-ht0x.onrender.com/${img}`}
                     alt="thumb"
                     width={80}
                     height={80}
