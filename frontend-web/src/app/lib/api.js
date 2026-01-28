@@ -51,7 +51,7 @@ api.interceptors.response.use(
         const refresh = localStorage.getItem("refresh");
 
         const res = await axios.post(
-          "https://cartsy-three.vercel.app/api/token/refresh/",
+          "https://cartsy-ht0x.onrender.com/api/token/refresh/",
           { refresh }
         );
 
