@@ -118,7 +118,7 @@ export default function ProductDetailPage() {
         <div className="card animate-card home-card product-detail-grid">
           <div className="flex flex-col">
             <div
-              className="relative w-full h-[420px] overflow-hidden rounded-xl bg-gray-100 cursor-zoom-in"
+              className="relative w-full h-105 overflow-hidden rounded-xl bg-gray-100 cursor-zoom-in"
               onMouseMove={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect();
                 setZoomPos({
