@@ -6,7 +6,16 @@ export function middleware(request) {
 
   const publicRoutes = ["/login", "/signup", "/verify-otp"];
 
-  // Allow public pges
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/favicon") ||
+    pathname.startsWith("/images") ||
+    pathname.startsWith("/api")
+  ) {
+    return NextResponse.next();
+  }
+
+  // Public routes
   if (publicRoutes.includes(pathname)) {
     if (token) {
       return NextResponse.redirect(new URL("/", request.url));
@@ -14,6 +23,7 @@ export function middleware(request) {
     return NextResponse.next();
   }
 
+  // Protected routes
   if (!token) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
