@@ -11,7 +11,6 @@ export default function OrdersPage() {
 
   useEffect(() => {
     const token = localStorage.getItem("access");
-    if (!token) router.push("/login");
     fetchOrders();
   }, []);
 

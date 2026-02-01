@@ -25,7 +25,6 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     const token = localStorage.getItem("access");
-    if (!token) router.push("/login");
     fetchCart();
   }, []);
 

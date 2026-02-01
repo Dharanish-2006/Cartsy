@@ -13,7 +13,6 @@ export default function CartPage() {
 
   useEffect(() => {
     const token = localStorage.getItem("access");
-    if (!token) router.push("/login");
     fetchCart();
   }, []);
 
