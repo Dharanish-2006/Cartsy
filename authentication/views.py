@@ -54,6 +54,8 @@ class SignupAPI(APIView):
         )
 
         return Response({"message": "OTP sent successfully"})
+
+
 class LoginAPI(APIView):
     def post(self, request):
         email = request.data.get("email", "").strip().lower()
@@ -93,14 +95,14 @@ class LoginAPI(APIView):
             status=status.HTTP_200_OK
         )
 
-
         response.set_cookie(
             key="access",
             value=str(refresh.access_token),
             httponly=True,
-            secure=True,        
-            samesite="None",    
-            max_age=60 * 60 
+            secure=True,
+            samesite="None",
+            domain=".onrender.com",
+            max_age=60 * 60
         )
 
         response.set_cookie(
@@ -109,10 +111,13 @@ class LoginAPI(APIView):
             httponly=True,
             secure=True,
             samesite="None",
-            max_age=60 * 60 * 24 * 7 
+            domain=".onrender.com",
+            max_age=60 * 60 * 24 * 7
         )
 
         return response
+
+
 class VerifyOTP(APIView):
     def post(self, request):
         email = request.data.get("email", "").strip().lower()
