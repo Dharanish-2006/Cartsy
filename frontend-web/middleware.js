@@ -6,20 +6,16 @@ export function middleware(request) {
 
   const publicRoutes = ["/login", "/signup", "/verify-otp"];
 
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/favicon") ||
-    pathname.startsWith("/api")
-  ) {
+  // Allow public pges
+  if (publicRoutes.includes(pathname)) {
+    if (token) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
     return NextResponse.next();
   }
 
-  if (!token && !publicRoutes.includes(pathname)) {
+  if (!token) {
     return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  if (token && publicRoutes.includes(pathname)) {
-    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next();
