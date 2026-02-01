@@ -8,11 +8,13 @@ import Image from "next/image";
 export default function ProductDetailPage() {
   const { id } = useParams();
   const router = useRouter();
+
   const [product, setProduct] = useState(null);
   const [images, setImages] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
+
   const [zooming, setZooming] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -20,17 +22,12 @@ export default function ProductDetailPage() {
   const startX = useRef(0);
 
   useEffect(() => {
-    const token = localStorage.getItem("access");
-    if (!token) router.push("/login");
     fetchProduct();
   }, []);
 
   const fetchProduct = async () => {
     try {
-      const token = localStorage.getItem("access");
-      const res = await api.get(`/products/${id}/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get(`products/${id}/`);
 
       const imgs = [
         res.data.image,
@@ -40,24 +37,21 @@ export default function ProductDetailPage() {
       setProduct(res.data);
       setImages(imgs);
       setActiveIndex(0);
-    } catch {
+    } catch (err) {
       router.push("/");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (e.key === "ArrowRight" && activeIndex < images.length - 1)
-        setActiveIndex((i) => i + 1);
-      if (e.key === "ArrowLeft" && activeIndex > 0)
-        setActiveIndex((i) => i - 1);
-      if (e.key === "Escape") setLightboxOpen(false);
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [activeIndex, images.length]);
+  const addToCart = async () => {
+    await api.post("cart/", {
+      product_id: product.id,
+      quantity: qty,
+    });
+
+    router.push("/cart");
+  };
 
   const onTouchStart = (e) => {
     startX.current = e.touches[0].clientX;
@@ -67,17 +61,8 @@ export default function ProductDetailPage() {
     const diff = startX.current - e.changedTouches[0].clientX;
     if (diff > 50 && activeIndex < images.length - 1)
       setActiveIndex((i) => i + 1);
-    if (diff < -50 && activeIndex > 0) setActiveIndex((i) => i - 1);
-  };
-
-  const addToCart = async () => {
-    const token = localStorage.getItem("access");
-    await api.post(
-      "cart/",
-      { product_id: product.id, quantity: qty },
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
-    router.push("/cart");
+    if (diff < -50 && activeIndex > 0)
+      setActiveIndex((i) => i - 1);
   };
 
   if (loading) {
@@ -92,19 +77,18 @@ export default function ProductDetailPage() {
     <div className="page-bg">
       <div className="navbar">
         <div className="navbar-inner">
-          <span
-            className="logo cursor-pointer"
-            onClick={() => router.push("/")}
-          >
+          <span className="logo cursor-pointer" onClick={() => router.push("/")}>
             Cartsy
           </span>
+
           <div className="nav-actions">
             <button onClick={() => router.push("/cart")}>Cart</button>
             <button onClick={() => router.push("/orders")}>Orders</button>
+
             <button
               className="logout"
-              onClick={() => {
-                localStorage.clear();
+              onClick={async () => {
+                await api.post("logout/");
                 router.push("/login");
               }}
             >
@@ -116,6 +100,7 @@ export default function ProductDetailPage() {
 
       <div className="home-wrapper">
         <div className="card animate-card home-card product-detail-grid">
+          {/* IMAGE SECTION */}
           <div className="flex flex-col">
             <div
               className="relative w-full h-105 overflow-hidden rounded-xl bg-gray-100 cursor-zoom-in"
@@ -138,7 +123,7 @@ export default function ProductDetailPage() {
                 fill
                 priority
                 unoptimized
-                className="object-cover transition-transform duration-300"
+                className="object-cover"
               />
 
               {zooming && (
@@ -152,42 +137,19 @@ export default function ProductDetailPage() {
                 />
               )}
             </div>
-
-            <div className="flex gap-3 mt-4 overflow-x-auto scrollbar-hide">
-              {images.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveIndex(idx)}
-                  className={`border rounded-lg p-1 transition ${
-                    idx === activeIndex
-                      ? "border-[rgb(var(--brand))]"
-                      : "border-gray-200"
-                  }`}
-                >
-                  <Image
-                    src={`https://cartsy-ht0x.onrender.com${img}`}
-                    alt="thumb"
-                    width={80}
-                    height={80}
-                    loading="lazy"
-                    unoptimized
-                    className="rounded-md object-cover"
-                  />
-                </button>
-              ))}
-            </div>
           </div>
 
+          {/* INFO SECTION */}
           <div className="product-info">
-            <h1 className="text-3xl font-extrabold text-slate-900">
+            <h1 className="text-3xl font-extrabold">
               {product.product_name}
             </h1>
 
-            <p className="mt-3 text-slate-500 text-sm">
-              {product.description || "High quality product with best pricing."}
+            <p className="mt-3 text-slate-500">
+              {product.description || "High quality product"}
             </p>
 
-            <p className="text-2xl font-bold mt-6 text-[rgb(var(--brand))]">
+            <p className="text-2xl font-bold mt-6">
               ₹{product.price}
             </p>
 
@@ -197,47 +159,12 @@ export default function ProductDetailPage() {
               <button onClick={() => setQty(qty + 1)}>+</button>
             </div>
 
-            <button
-              className="btn btn-primary w-full mt-6 py-3"
-              onClick={addToCart}
-            >
+            <button className="btn btn-primary w-full mt-6" onClick={addToCart}>
               🛒 Add to Cart
-            </button>
-
-            <button
-              className="secondary-btn mt-3"
-              onClick={() => router.push("/")}
-            >
-              ← Back to Shop
             </button>
           </div>
         </div>
       </div>
-
-      <div className="mobile-sticky-cart">
-        <div className="mobile-cart-inner">
-          <span className="mobile-price">₹{product.price}</span>
-          <button className="btn btn-primary" onClick={addToCart}>
-            🛒 Add to Cart
-          </button>
-        </div>
-      </div>
-
-      {lightboxOpen && (
-        <div
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center"
-          onClick={() => setLightboxOpen(false)}
-        >
-          <Image
-            src={`https://cartsy-ht0x.onrender.com${images[activeIndex]}`}
-            alt="fullscreen"
-            width={1000}
-            height={800}
-            unoptimized
-            className="rounded-xl"
-          />
-        </div>
-      )}
     </div>
   );
 }
