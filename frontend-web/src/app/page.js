@@ -11,23 +11,25 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("access");
-    if (!token) router.push("/login");
     fetchProducts();
   }, []);
 
   const fetchProducts = async () => {
     try {
-      const token = localStorage.getItem("access");
-
-      const res = await api.get("home/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
+      const res = await api.get("home/");
       setProducts(res.data);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const logout = () => {
+    document.cookie = "access=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "refresh=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+
+    router.push("/login");
   };
 
   const SkeletonCard = () => (
@@ -41,20 +43,20 @@ export default function HomePage() {
 
   return (
     <div className="page-bg">
+      {/* NAVBAR */}
       <div className="navbar">
         <div className="navbar-inner">
-          <span className="logo">Cartsy</span>
+          <span
+            className="logo cursor-pointer"
+            onClick={() => router.push("/")}
+          >
+            Cartsy
+          </span>
 
           <div className="nav-actions">
             <button onClick={() => router.push("/cart")}>Cart</button>
             <button onClick={() => router.push("/orders")}>Orders</button>
-            <button
-              className="logout"
-              onClick={() => {
-                localStorage.clear();
-                router.push("/login");
-              }}
-            >
+            <button className="logout" onClick={logout}>
               Logout
             </button>
           </div>
@@ -81,7 +83,7 @@ export default function HomePage() {
             </button>
           </section>
 
-          {/* FEATURED */}
+          {/* PRODUCTS */}
           <section className="home-section">
             <h2 className="section-title">Featured Products</h2>
 
@@ -98,7 +100,6 @@ export default function HomePage() {
                         width={400}
                         height={260}
                         className="product-img"
-                        priority
                         unoptimized
                       />
 
