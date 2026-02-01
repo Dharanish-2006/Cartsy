@@ -12,13 +12,11 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("access");
     fetchCart();
   }, []);
 
   const fetchCart = async () => {
     try {
-      const token = localStorage.getItem("access");
       const res = await api.get("cart/", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -30,7 +28,6 @@ export default function CartPage() {
   };
 
   const updateQty = async (itemId, action) => {
-    const token = localStorage.getItem("access");
     await api.post(
       "cart/update/",
       { item_id: itemId, action },

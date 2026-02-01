@@ -24,13 +24,11 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem("access");
     fetchCart();
   }, []);
 
   const fetchCart = async () => {
     try {
-      const token = localStorage.getItem("access");
       const res = await api.get("cart/", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -59,7 +57,6 @@ export default function CheckoutPage() {
         return;
       }
 
-      const token = localStorage.getItem("access");
 
       /* ---------- CASH ON DELIVERY ---------- */
       if (paymentMethod === "COD") {
@@ -92,7 +89,6 @@ export default function CheckoutPage() {
           return;
         }
 
-        const token = localStorage.getItem("access");
 
         const res = await api.post(
           "orders/razorpay/",

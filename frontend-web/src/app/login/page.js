@@ -17,8 +17,6 @@ export default function LoginPage() {
     try {
       const res = await api.post("/login/", { email, password });
 
-      localStorage.setItem("access", res.data.access);
-      localStorage.setItem("refresh", res.data.refresh);
 
       // router.push("/");
     } catch (err) {

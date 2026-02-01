@@ -10,13 +10,11 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("access");
     fetchOrders();
   }, []);
 
   const fetchOrders = async () => {
     try {
-      const token = localStorage.getItem("access");
       const res = await api.get("orders/", {
         headers: { Authorization: `Bearer ${token}` },
       });
