@@ -96,14 +96,10 @@ SESSION_COOKIE_SAMESITE = "None"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "authentication.jwt_cookie_auth.CookieJWTAuthentication",
     ),
 }
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:8000",
-]
 
 
 SIMPLE_JWT = {
