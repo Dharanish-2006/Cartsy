@@ -60,27 +60,59 @@ class LoginAPI(APIView):
         password = request.data.get("password")
 
         if not email or not password:
-            return Response({"error": "Email and password required"}, status=400)
+            return Response(
+                {"error": "Email and password required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            return Response({"error": "Invalid credentials"}, status=401)
+            return Response(
+                {"error": "Invalid credentials"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
 
         if not user.is_active:
-            return Response({"error": "Account not verified"}, status=403)
+            return Response(
+                {"error": "Account not verified"},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         user = authenticate(username=user.username, password=password)
-
         if not user:
-            return Response({"error": "Invalid credentials"}, status=401)
+            return Response(
+                {"error": "Invalid credentials"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
 
         refresh = RefreshToken.for_user(user)
 
-        return Response({
-            "access": str(refresh.access_token),
-            "refresh": str(refresh),
-        })
+        response = Response(
+            {"message": "Login successful"},
+            status=status.HTTP_200_OK
+        )
+
+
+        response.set_cookie(
+            key="access",
+            value=str(refresh.access_token),
+            httponly=True,
+            secure=True,        
+            samesite="None",    
+            max_age=60 * 60 
+        )
+
+        response.set_cookie(
+            key="refresh",
+            value=str(refresh),
+            httponly=True,
+            secure=True,
+            samesite="None",
+            max_age=60 * 60 * 24 * 7 
+        )
+
+        return response
 class VerifyOTP(APIView):
     def post(self, request):
         email = request.data.get("email", "").strip().lower()
