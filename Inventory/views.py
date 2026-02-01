@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.response import Response
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def HomeAPI(request):
     products = product.objects.all()[:10]
     data = [
