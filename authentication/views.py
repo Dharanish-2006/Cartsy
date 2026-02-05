@@ -1,6 +1,6 @@
 from django.core.mail import send_mail
 from django.conf import settings
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate,logout
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -144,3 +144,20 @@ class VerifyOTP(APIView):
         otp_obj.delete()
 
         return Response({"message": "Account verified successfully"})
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def LogoutAPI(request):
+
+    logout(request)
+
+    response = Response(
+        {"message": "Logged out successfully"},
+        status=200
+    )
+
+    response.delete_cookie("access")
+    response.delete_cookie("refresh")
+    response.delete_cookie("csrftoken")
+
+    return response
