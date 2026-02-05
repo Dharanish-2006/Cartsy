@@ -15,13 +15,13 @@ from rest_framework.response import Response
 def HomeAPI(request):
     products = product.objects.all()[:10]
     data = [
-        {
-            "id": p.id,
-            "name": p.product_name,
-            "price": p.price,
-            "image": p.image.url if p.image else None
-        }
-        for p in products
+    {
+        "id": p.id,
+        "product_name": p.product_name,
+        "price": p.price,
+        "image": p.image.url if p.image else None
+    }
+    for p in products
     ]
     return Response(data)
 
