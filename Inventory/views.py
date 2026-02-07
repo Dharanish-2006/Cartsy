@@ -1,31 +1,33 @@
 from django.conf import settings
-import razorpay
-from rest_framework import status
-from OrderManagement.models import *
 from django.shortcuts import get_object_or_404
+import razorpay
+
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
+
+from OrderManagement.models import Order, OrderItem, Payment
 from .models import product, Cart
 from .serializers import *
-from rest_framework.views import APIView
-from rest_framework.decorators import  permission_classes
-from rest_framework.permissions import IsAuthenticated,AllowAny
-from rest_framework.response import Response
 
-
-@permission_classes([IsAuthenticated])
+@api_view(["GET"])
+@permission_classes([AllowAny])
 def HomeAPI(request):
     products = product.objects.all()[:10]
+
     data = [
-    {
-        "id": p.id,
-        "product_name": p.product_name,
-        "price": p.price,
-        "image": p.image.url if p.image else None
-    }
-    for p in products
+        {
+            "id": p.id,
+            "product_name": p.product_name,
+            "price": p.price,
+            "image": p.image.url if p.image else None,
+        }
+        for p in products
     ]
-    return Response(data)
 
-
+    return Response(data, status=status.HTTP_200_OK)
 
 class ProductDetailAPI(APIView):
     permission_classes = [IsAuthenticated]
