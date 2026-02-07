@@ -147,10 +147,10 @@ class VerifyOTP(APIView):
 
         return Response({"message": "Account verified successfully"})
 
-# @api_view(["POST"])
+
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def LogoutAPI(request):
-
     logout(request)
 
     response = Response(
@@ -158,8 +158,8 @@ def LogoutAPI(request):
         status=200
     )
 
-    response.delete_cookie("access")
-    response.delete_cookie("refresh")
-    response.delete_cookie("csrftoken")
+    response.delete_cookie("access", path="/")
+    response.delete_cookie("refresh", path="/")
+    response.delete_cookie("csrftoken", path="/")
 
     return response
