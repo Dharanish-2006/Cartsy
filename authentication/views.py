@@ -12,6 +12,8 @@ from OrderManagement.utils.otp import generate_otp
 from django.utils import timezone
 from datetime import timedelta
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 class SignupAPI(APIView):
     def post(self, request):
@@ -145,7 +147,7 @@ class VerifyOTP(APIView):
 
         return Response({"message": "Account verified successfully"})
 
-@api_view(["POST"])
+# @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def LogoutAPI(request):
 
