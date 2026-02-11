@@ -13,7 +13,7 @@ from .models import product, Cart
 from .serializers import *
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def HomeAPI(request):
     products = product.objects.all()[:10]
 
