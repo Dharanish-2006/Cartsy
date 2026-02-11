@@ -85,7 +85,6 @@ TEMPLATES = [
         },
     },
 ]
-CORS_ALLOW_CREDENTIALS = True
 
 # CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
@@ -93,7 +92,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://cartsy-rho.vercel.app",
-    "https://cartsy-frontend.onrender.com/",
+    "https://cartsy-frontend.onrender.com",
 ]
 
 REST_FRAMEWORK = {
