@@ -13,7 +13,7 @@ from .models import product, Cart
 from .serializers import *
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def HomeAPI(request):
     products = product.objects.all()[:10]
 
@@ -30,7 +30,7 @@ def HomeAPI(request):
     return Response(data, status=status.HTTP_200_OK)
 
 class ProductDetailAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, pk):
         item = product.objects.get(pk=pk)
@@ -39,7 +39,7 @@ class ProductDetailAPI(APIView):
 
 
 class CartAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request):
         items = Cart.objects.filter(user=request.user)
@@ -67,7 +67,7 @@ class CartAPI(APIView):
 
 
 class CreateOrderAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         user = request.user
@@ -126,7 +126,7 @@ class CreateOrderAPI(APIView):
         )
 
 class CreateRazorpayOrderAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         user = request.user
@@ -184,7 +184,7 @@ class CreateRazorpayOrderAPI(APIView):
         })
 
 class VerifyPaymentAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         data = request.data
@@ -219,7 +219,7 @@ class VerifyPaymentAPI(APIView):
 
 
 class UpdateCartQuantity(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         item_id = request.data.get("item_id")
@@ -243,7 +243,7 @@ class UpdateCartQuantity(APIView):
 
 
 class OrdersAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request):
         orders = Order.objects.filter(user=request.user)
