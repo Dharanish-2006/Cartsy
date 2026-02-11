@@ -103,7 +103,7 @@ class LoginAPI(APIView):
             httponly=True,
             secure=True,
             samesite="None",
-            domain=".onrender.com",
+            # domain=".onrender.com",
             max_age=60 * 60
         )
 
@@ -113,7 +113,7 @@ class LoginAPI(APIView):
             httponly=True,
             secure=True,
             samesite="None",
-            domain=".onrender.com",
+            # domain=".onrender.com",
             max_age=60 * 60 * 24 * 7
         )
 
