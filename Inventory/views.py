@@ -44,26 +44,35 @@ class CartAPI(APIView):
     def get(self, request):
         items = Cart.objects.filter(user=request.user)
         serializer = CartSerializer(items, many=True)
-        total = sum(i.total_price for i in items)
+        total = sum(item.total_price for item in items)
 
-        return Response({
-            "items": serializer.data,
-            "total": total
-        })
+        return Response(
+            {"items": serializer.data, "total": total},
+            status=status.HTTP_200_OK
+        )
 
     def post(self, request):
         product_id = request.data.get("product_id")
-        item = product.objects.get(id=product_id)
+        quantity = int(request.data.get("quantity", 1))
+
+        item = get_object_or_404(product, id=product_id)
 
         cart_item, created = Cart.objects.get_or_create(
             user=request.user,
             product=item
         )
-        if not created:
-            cart_item.quantity += 1
+
+        if created:
+            cart_item.quantity = quantity
+        else:
+            cart_item.quantity += quantity
+
         cart_item.save()
 
-        return Response({"message": "Added to cart"})
+        return Response(
+            {"message": "Added to cart"},
+            status=status.HTTP_200_OK
+        )
 
 
 class CreateOrderAPI(APIView):
