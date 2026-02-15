@@ -93,6 +93,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://cartsy-rho.vercel.app",
     "https://cartsy-frontend.onrender.com",
+    "https://cartsy-frontend.onrender.com/signup"
 ]
 CORS_ALLOW_HEADERS = [
     "authorization",
