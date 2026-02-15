@@ -1,4 +1,4 @@
-from django.conf import settings
+from os
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from datetime import timedelta
