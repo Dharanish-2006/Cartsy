@@ -106,6 +106,10 @@ CORS_ALLOW_HEADERS = [
     "x-csrftoken",
     "x-requested-with",
 ]
+CSRF_TRUSTED_ORIGINS = [
+    "https://cartsy-frontend.onrender.com",
+    "http://localhost:3000",
+]
 CORS_ALLOW_METHODS = [
     "DELETE",
     "GET",
