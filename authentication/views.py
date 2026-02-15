@@ -1,4 +1,4 @@
-from os
+import os
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from datetime import timedelta
