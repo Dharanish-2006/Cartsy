@@ -1,8 +1,8 @@
-from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from datetime import timedelta
+import requests
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -15,6 +15,23 @@ from .models import EmailOTP, User
 from OrderManagement.utils.otp import generate_otp
 
 
+def send_otp_email(email, otp):
+    url = "https://api.resend.com/emails"
+
+    headers = {
+        "Authorization": f"Bearer {os.getenv('RESEND_API_KEY')}",
+        "Content-Type": "application/json",
+    }
+
+    data = {
+        "from": "Cartsy <onboarding@resend.dev>",  # FREE account must use this
+        "to": [email],
+        "subject": "Your OTP – CARTSY",
+        "html": f"<h2>Your OTP is {otp}</h2><p>Valid for 5 minutes.</p>",
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+    print("Resend Response:", response.status_code, response.text)
 class SignupAPI(APIView):
     def post(self, request):
         email = request.data.get("email", "").strip().lower()
@@ -47,13 +64,7 @@ class SignupAPI(APIView):
             defaults={"otp": otp}
         )
 
-        send_mail(
-            subject="Your OTP – CARTSY",
-            message=f"Your OTP is {otp}. Valid for 5 minutes.",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email],
-            fail_silently=False,
-        )
+        send_otp_email(email, otp)
 
         return Response(
             {"message": "OTP sent successfully"},
