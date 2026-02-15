@@ -97,7 +97,7 @@ class LoginAPI(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        user = authenticate(username=user.username, password=password)
+        user = authenticate(request, email=email, password=password)
         if not user:
             return Response(
                 {"error": "Invalid credentials"},
