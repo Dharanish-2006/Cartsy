@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-=cldztbc4jg&xl0!x673!*v2_=p$$eu)=7*f#d0#zs$44xx-h^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*','http://localhost:3000','127.0.0.1', '.vercel.app','e-comm-ivory-six.vercel.app','.onrender.com', "cartsy-ht0x.onrender.com",]
+ALLOWED_HOSTS = ['http://localhost:3000','127.0.0.1', '.vercel.app','e-comm-ivory-six.vercel.app','.onrender.com', "cartsy-ht0x.onrender.com",]
 
 
 # Application definition
@@ -57,8 +57,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.security.SecurityMiddleware',
+    'django.middleware.security.SecurityMiddleware',  
     "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -86,15 +85,15 @@ TEMPLATES = [
     },
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",
-#     "https://cartsy-rho.vercel.app",
-#     "https://cartsy-frontend.onrender.com",
-#     "https://cartsy-frontend.onrender.com/signup"
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "https://cartsy-rho.vercel.app",
+    "https://cartsy-frontend.onrender.com",
+    "https://cartsy-frontend.onrender.com/signup"
+]
 CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
