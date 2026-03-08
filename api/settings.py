@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-=cldztbc4jg&xl0!x673!*v2_=p$$eu)=7*f#d0#zs$44xx-h^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['http://localhost:3000','127.0.0.1', '.vercel.app','e-comm-ivory-six.vercel.app','.onrender.com', "cartsy-ht0x.onrender.com",]
+ALLOWED_HOSTS = ['http://localhost:3000','127.0.0.1', '.vercel.app','e-comm-ivory-six.vercel.app','.onrender.com', "cartsy-ht0x.onrender.com","localhost"]
 
 
 # Application definition
@@ -89,6 +89,7 @@ TEMPLATES = [
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
     "http://localhost:3000",
     "https://cartsy-rho.vercel.app",
     "https://cartsy-frontend.onrender.com",
