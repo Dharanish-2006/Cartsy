@@ -26,4 +26,5 @@ urlpatterns = [
     path("api/orders/", OrdersAPI.as_view()),
     path("api/orders/create/", CreateOrderAPI.as_view()),
     path("api/orders/razorpay/", CreateRazorpayOrderAPI.as_view()),
+    path("ping/",ping)
 ]
