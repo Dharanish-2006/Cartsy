@@ -259,5 +259,5 @@ class OrdersAPI(APIView):
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
     
-def ping():
+def ping(request):
     return HttpResponse("OK")
