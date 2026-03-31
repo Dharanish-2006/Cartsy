@@ -30,7 +30,6 @@ def HomeAPI(request):
     return Response(data, status=status.HTTP_200_OK)
 
 class ProductDetailAPI(APIView):
-    permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
         item = product.objects.get(pk=pk)
