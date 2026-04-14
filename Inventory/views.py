@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 
 from OrderManagement.models import Order, OrderItem, Payment
 from .models import product, Cart
@@ -40,7 +40,7 @@ def send_email_background(order):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def HomeAPI(request):
     products = product.objects.all()[:10]
     data = [
@@ -56,7 +56,7 @@ def HomeAPI(request):
 
 
 class ProductDetailAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, pk):
         item = product.objects.get(pk=pk)
