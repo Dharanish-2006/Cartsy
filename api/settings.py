@@ -88,13 +88,12 @@ TEMPLATES = [
 # CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "https://cartsy-rho.vercel.app",
-    "https://cartsy-frontend.onrender.com",
-    "https://cartsy-web.vercel.app/login",
-    "https://cartsy-web.vercel.app",
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".vercel.app",
+    ".onrender.com",
+    "cartsy-ht0x.onrender.com",
 ]
 CORS_ALLOW_HEADERS = [
     "accept",
