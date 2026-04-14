@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated,AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from OrderManagement.models import Order, OrderItem, Payment
 from .models import product, Cart
@@ -18,7 +18,8 @@ from .serializers import *
 def _cart_total(items):
     total = sum(
         (Decimal(str(item.total_price)) for item in items),
-        Decimal("0"))
+        Decimal("0")
+    )
     return total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
@@ -96,6 +97,7 @@ class CartAPI(APIView):
 
 
 class CreateOrderAPI(APIView):
+    """COD orders only."""
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -140,7 +142,6 @@ class CreateOrderAPI(APIView):
             )
 
         cart_items.delete()
-
         send_email_background(order)
 
         return Response(
@@ -155,6 +156,14 @@ class CreateRazorpayOrderAPI(APIView):
     def post(self, request):
         user = request.user
         data = request.data
+
+        required = ["full_name", "address", "city", "postal_code", "country"]
+        for field in required:
+            if not data.get(field, "").strip():
+                return Response(
+                    {"error": f"{field} is required"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         cart_items = Cart.objects.filter(user=user).select_related("product")
         if not cart_items.exists():
@@ -172,33 +181,15 @@ class CreateRazorpayOrderAPI(APIView):
             "payment_capture": 1,
         })
 
-        order = Order.objects.create(
-            user=user,
-            full_name=data.get("full_name", ""),
-            address=data.get("address", ""),
-            city=data.get("city", ""),
-            postal_code=data.get("postal_code", ""),
-            country=data.get("country", ""),
-            total_amount=total_amount,
-            payment_method="ONLINE",
-            payment_status="PENDING",
-            status="PLACED",
-        )
-
-        for item in cart_items:
-            OrderItem.objects.create(
-                order=order,
-                product=item.product,
-                quantity=item.quantity,
-                price=Decimal(str(item.product.price)),
-            )
-
-        Payment.objects.create(
-            order=order,
-            razorpay_order_id=razorpay_order["id"],
-            amount=total_amount,
-            status="CREATED",
-        )
+        request.session[f"rzp_{razorpay_order['id']}"] = {
+            "full_name":   data["full_name"],
+            "address":     data["address"],
+            "city":        data["city"],
+            "postal_code": data["postal_code"],
+            "country":     data["country"],
+            "total":       str(total_amount),
+        }
+        request.session.modified = True
 
         return Response({
             "key":      settings.RAZORPAY_KEY_ID,
@@ -224,22 +215,61 @@ class VerifyPaymentAPI(APIView):
                 "razorpay_signature":  data["razorpay_signature"],
             })
         except Exception:
-            return Response({"error": "Payment verification failed"}, status=400)
+            return Response(
+                {"error": "Payment verification failed"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        payment = Payment.objects.get(razorpay_order_id=data["razorpay_order_id"])
-        payment.razorpay_payment_id = data["razorpay_payment_id"]
-        payment.razorpay_signature  = data["razorpay_signature"]
-        payment.status = "SUCCESS"
-        payment.save()
+        session_key = f"rzp_{data['razorpay_order_id']}"
+        shipping    = request.session.get(session_key)
 
-        order = payment.order
-        order.payment_status = "SUCCESS"
-        order.status = "PAID"
-        order.save()
+        if not shipping:
+            return Response(
+                {"error": "Session expired — please contact support with your payment ID."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        cart_items   = Cart.objects.filter(user=request.user).select_related("product")
+        total_amount = Decimal(shipping["total"])
+
+        order = Order.objects.create(
+            user=request.user,
+            full_name=shipping["full_name"],
+            address=shipping["address"],
+            city=shipping["city"],
+            postal_code=shipping["postal_code"],
+            country=shipping["country"],
+            total_amount=total_amount,
+            payment_method="ONLINE",
+            payment_status="SUCCESS",
+            status="PAID",
+            razorpay_order_id=data["razorpay_order_id"],
+        )
+
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                price=Decimal(str(item.product.price)),
+            )
+
+        Payment.objects.create(
+            order=order,
+            razorpay_order_id=data["razorpay_order_id"],
+            razorpay_payment_id=data["razorpay_payment_id"],
+            razorpay_signature=data["razorpay_signature"],
+            amount=total_amount,
+            status="SUCCESS",
+        )
+
+        cart_items.delete()
+        del request.session[session_key]
+        request.session.modified = True
 
         send_email_background(order)
 
-        return Response({"message": "Payment successful"})
+        return Response({"status": "success", "order_id": order.id})
 
 
 class UpdateCartQuantity(APIView):
