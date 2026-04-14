@@ -126,3 +126,22 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Order #{self.order.id} | {self.status}"
+    
+class PendingRazorpayOrder(models.Model):
+    """
+    Temporary record created when a Razorpay order is initiated.
+    Deleted after successful payment verification.
+    If payment is cancelled/failed it stays here and is never promoted to Order.
+    """
+    user              = models.ForeignKey(User, on_delete=models.CASCADE)
+    razorpay_order_id = models.CharField(max_length=100, unique=True, db_index=True)
+    full_name         = models.CharField(max_length=100)
+    address           = models.TextField()
+    city              = models.CharField(max_length=50)
+    postal_code       = models.CharField(max_length=20)
+    country           = models.CharField(max_length=50)
+    total_amount      = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at        = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Pending {self.razorpay_order_id} — {self.user.username}"

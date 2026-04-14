@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
-from OrderManagement.models import Order, OrderItem, Payment
+from OrderManagement.models import Order, OrderItem, Payment, PendingRazorpayOrder
 from .models import product, Cart
 from .serializers import *
 
@@ -80,8 +80,7 @@ class CartAPI(APIView):
     def post(self, request):
         product_id = request.data.get("product_id")
         quantity   = int(request.data.get("quantity", 1))
-
-        item = get_object_or_404(product, id=product_id)
+        item       = get_object_or_404(product, id=product_id)
 
         cart_item, created = Cart.objects.get_or_create(
             user=request.user,
@@ -181,15 +180,18 @@ class CreateRazorpayOrderAPI(APIView):
             "payment_capture": 1,
         })
 
-        request.session[f"rzp_{razorpay_order['id']}"] = {
-            "full_name":   data["full_name"],
-            "address":     data["address"],
-            "city":        data["city"],
-            "postal_code": data["postal_code"],
-            "country":     data["country"],
-            "total":       str(total_amount),
-        }
-        request.session.modified = True
+        PendingRazorpayOrder.objects.update_or_create(
+            razorpay_order_id=razorpay_order["id"],
+            defaults={
+                "user":        user,
+                "full_name":   data["full_name"],
+                "address":     data["address"],
+                "city":        data["city"],
+                "postal_code": data["postal_code"],
+                "country":     data["country"],
+                "total_amount": total_amount,
+            },
+        )
 
         return Response({
             "key":      settings.RAZORPAY_KEY_ID,
@@ -199,6 +201,13 @@ class CreateRazorpayOrderAPI(APIView):
 
 
 class VerifyPaymentAPI(APIView):
+    """
+    1. Verifies Razorpay signature.
+    2. Looks up PendingRazorpayOrder for shipping details.
+    3. Only on success: creates Order + OrderItems + Payment, clears cart,
+       deletes the pending row, syncs to Zoho (via signal), sends email.
+    Cancelled / failed payments never call this endpoint — nothing is saved.
+    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -220,26 +229,26 @@ class VerifyPaymentAPI(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        session_key = f"rzp_{data['razorpay_order_id']}"
-        shipping    = request.session.get(session_key)
-
-        if not shipping:
+        try:
+            pending = PendingRazorpayOrder.objects.get(
+                razorpay_order_id=data["razorpay_order_id"]
+            )
+        except PendingRazorpayOrder.DoesNotExist:
             return Response(
-                {"error": "Session expired — please contact support with your payment ID."},
+                {"error": "Order details not found — please contact support."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        cart_items   = Cart.objects.filter(user=request.user).select_related("product")
-        total_amount = Decimal(shipping["total"])
+        cart_items = Cart.objects.filter(user=request.user).select_related("product")
 
         order = Order.objects.create(
             user=request.user,
-            full_name=shipping["full_name"],
-            address=shipping["address"],
-            city=shipping["city"],
-            postal_code=shipping["postal_code"],
-            country=shipping["country"],
-            total_amount=total_amount,
+            full_name=pending.full_name,
+            address=pending.address,
+            city=pending.city,
+            postal_code=pending.postal_code,
+            country=pending.country,
+            total_amount=pending.total_amount,
             payment_method="ONLINE",
             payment_status="SUCCESS",
             status="PAID",
@@ -259,13 +268,12 @@ class VerifyPaymentAPI(APIView):
             razorpay_order_id=data["razorpay_order_id"],
             razorpay_payment_id=data["razorpay_payment_id"],
             razorpay_signature=data["razorpay_signature"],
-            amount=total_amount,
+            amount=pending.total_amount,
             status="SUCCESS",
         )
 
         cart_items.delete()
-        del request.session[session_key]
-        request.session.modified = True
+        pending.delete()
 
         send_email_background(order)
 
