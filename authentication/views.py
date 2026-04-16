@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import EmailOTP, User
 from OrderManagement.utils.otp import generate_otp
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import send_mail
 from django.conf import settings
 
 def send_otp_email(email, otp):
@@ -27,15 +27,14 @@ def send_otp_email(email, otp):
     <br>
     <p>– Cartsy Team</p>
     """
-
-    msg = EmailMultiAlternatives(
+    send_mail(
         subject,
         text_content,
         settings.DEFAULT_FROM_EMAIL,
         [email],
+        fail_silently=False,
     )
-    msg.attach_alternative(html_content, "text/html")
-    msg.send()
+    
 class SignupAPI(APIView):
     def post(self, request):
         email = request.data.get("email", "").strip().lower()
