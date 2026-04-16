@@ -32,6 +32,64 @@ If you did not request this, you can ignore this email.
 
 - Cartsy Team
 """
+    html_content= html_content = f"""
+    <html>
+    <body style="margin:0; padding:0; background:#0B0B1A; font-family:Arial, sans-serif; color:white;">
+        
+        <div style="max-width:500px; margin:40px auto; padding:30px; background:#111126; border-radius:12px; text-align:center;">
+            
+            <h1 style="
+                background: linear-gradient(90deg, #7F5AF0, #FF6AC1);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                font-size:28px;
+                margin-bottom:10px;
+            ">
+                Cartsy
+            </h1>
+
+            <p style="color:#aaa; margin-bottom:20px;">
+                Verify your email to continue
+            </p>
+
+            <div style="
+                background:#1A1A2E;
+                padding:20px;
+                border-radius:10px;
+                margin:20px 0;
+            ">
+                <p style="margin:0; color:#bbb;">Your verification code</p>
+                <h2 style="font-size:32px; margin:10px 0; letter-spacing:4px;">
+                    {otp}
+                </h2>
+            </div>
+
+            <p style="color:#888; font-size:14px;">
+                This code expires in 5 minutes.
+            </p>
+
+            <a href="#" style="
+                display:inline-block;
+                margin-top:20px;
+                padding:12px 24px;
+                border-radius:8px;
+                background: linear-gradient(90deg, #7F5AF0, #FF6AC1);
+                color:white;
+                text-decoration:none;
+                font-weight:bold;
+            ">
+                Verify Account
+            </a>
+
+            <p style="margin-top:30px; font-size:12px; color:#666;">
+                If you didn’t request this, ignore this email.
+            </p>
+
+        </div>
+
+    </body>
+    </html>
+    """
 
     send_mail(
         subject,
@@ -39,6 +97,7 @@ If you did not request this, you can ignore this email.
         settings.DEFAULT_FROM_EMAIL,
         [email],
         fail_silently=False,
+        html_message=html_content
     )    
 class SignupAPI(APIView):
     def post(self, request):
