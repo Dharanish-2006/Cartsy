@@ -17,12 +17,12 @@ from django.core.mail import send_mail
 from django.conf import settings
 
 def send_otp_email(email, otp):
-    subject = "Verify your email address"
+    subject = "Email verification for your Cartsy account"
 
     message = f"""
 Cartsy Email Verification
 
-Hello,
+Hello user,
 
 Your verification code is: {otp}
 
