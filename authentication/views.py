@@ -17,24 +17,29 @@ from django.core.mail import send_mail
 from django.conf import settings
 
 def send_otp_email(email, otp):
-    subject = "Your OTP – CARTSY"
+    subject = "Verify your email address"
 
-    text_content = f"Your OTP is {otp}. Valid for 5 minutes."
+    message = f"""
+Cartsy Email Verification
 
-    html_content = f"""
-    <h2>Your OTP is {otp}</h2>
-    <p>Valid for <b>5 minutes</b>.</p>
-    <br>
-    <p>– Cartsy Team</p>
-    """
+Hello,
+
+Your verification code is: {otp}
+
+This code will expire in 5 minutes.
+
+If you did not request this, you can ignore this email.
+
+- Cartsy Team
+"""
+
     send_mail(
         subject,
-        text_content,
+        message,
         settings.DEFAULT_FROM_EMAIL,
         [email],
         fail_silently=False,
-    )
-    
+    )    
 class SignupAPI(APIView):
     def post(self, request):
         email = request.data.get("email", "").strip().lower()
