@@ -13,25 +13,29 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import EmailOTP, User
 from OrderManagement.utils.otp import generate_otp
-
+from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
 
 def send_otp_email(email, otp):
-    url = "https://api.resend.com/emails"
+    subject = "Your OTP – CARTSY"
 
-    headers = {
-        "Authorization": f"Bearer {os.getenv('RESEND_API_KEY')}",
-        "Content-Type": "application/json",
-    }
+    text_content = f"Your OTP is {otp}. Valid for 5 minutes."
 
-    data = {
-        "from": "Cartsy <onboarding@resend.dev>",  # FREE account must use this
-        "to": [email],
-        "subject": "Your OTP – CARTSY",
-        "html": f"<h2>Your OTP is {otp}</h2><p>Valid for 5 minutes.</p>",
-    }
+    html_content = f"""
+    <h2>Your OTP is {otp}</h2>
+    <p>Valid for <b>5 minutes</b>.</p>
+    <br>
+    <p>– Cartsy Team</p>
+    """
 
-    response = requests.post(url, headers=headers, json=data)
-    print("Resend Response:", response.status_code, response.text)
+    msg = EmailMultiAlternatives(
+        subject,
+        text_content,
+        settings.DEFAULT_FROM_EMAIL,
+        [email],
+    )
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
 class SignupAPI(APIView):
     def post(self, request):
         email = request.data.get("email", "").strip().lower()
