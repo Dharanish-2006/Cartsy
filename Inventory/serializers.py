@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import *
 from OrderManagement.models import Order, OrderItem
+from OrderManagement.models import Order, OrderItem, Notification
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
@@ -17,11 +18,16 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ["id", "product_name", "price", "image", "images", "description"]
 
     def get_image(self, obj):
-        return obj.image.url if obj.image else None
+        request = self.context.get("request")
+        if obj.image:
+            url = obj.image.url
+            # return absolute URL if request context available
+            return request.build_absolute_uri(url) if request else url
+        return None
 
 
 class CartSerializer(serializers.ModelSerializer):
-    product = ProductSerializer()
+    product = ProductSerializer(read_only=True)
 
     class Meta:
         model = Cart
@@ -45,3 +51,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ["id", "created_at", "status", "total_amount", "items"]
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ["id", "title", "message", "type", "is_read", "order", "created_at"]

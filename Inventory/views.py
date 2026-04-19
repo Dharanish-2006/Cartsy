@@ -8,12 +8,12 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny,IsAdminUser
 
 from OrderManagement.models import Order, OrderItem, Payment, PendingRazorpayOrder
 from .models import product, Cart
 from .serializers import *
-
+from OrderManagement.services.order_service import handle_order_success
 
 def _cart_total(items):
     total = sum(
@@ -69,9 +69,13 @@ class CartAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        items = Cart.objects.filter(user=request.user).select_related("product")
-        serializer = CartSerializer(items, many=True)
+        items = Cart.objects.filter(
+            user=request.user
+        ).select_related("product").prefetch_related("product__images")
+
+        serializer = CartSerializer(items, many=True, context={"request": request})
         total = _cart_total(items)
+
         return Response(
             {"items": serializer.data, "total": str(total)},
             status=status.HTTP_200_OK,
@@ -139,6 +143,7 @@ class CreateOrderAPI(APIView):
                 quantity=item.quantity,
                 price=Decimal(str(item.product.price)),
             )
+        handle_order_success(order)
 
         cart_items.delete()
         send_email_background(order)
@@ -258,8 +263,8 @@ class VerifyPaymentAPI(APIView):
         for item in cart_items:
             OrderItem.objects.create(
                 order=order,
-                product=item.product,
                 quantity=item.quantity,
+                product=item.product,
                 price=Decimal(str(item.product.price)),
             )
 
@@ -271,7 +276,7 @@ class VerifyPaymentAPI(APIView):
             amount=pending.total_amount,
             status="SUCCESS",
         )
-
+        handle_order_success(order)
         cart_items.delete()
         pending.delete()
 
@@ -311,6 +316,55 @@ class OrdersAPI(APIView):
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
 
+# Key views
+class AdminOrderListAPI(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        status_filter = request.query_params.get("status")
+        qs = Order.objects.select_related("user").prefetch_related("items__product").order_by("-created_at")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        return Response(OrderSerializer(qs, many=True).data)
+
+class UpdateOrderStatusAPI(APIView):
+    permission_classes = [IsAdminUser]
+
+    def patch(self, request, pk):
+        order = get_object_or_404(Order, pk=pk)
+        new_status = request.data.get("status")
+        if new_status not in dict(Order.ORDER_STATUS_CHOICES):
+            return Response({"error": "Invalid status"}, status=400)
+        order.status = new_status
+        order.save()
+        return Response({"status": order.status})
+
+class AdminNotificationsAPI(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        notifs = Notification.objects.filter(is_read=False)[:50]
+        return Response(NotificationSerializer(notifs, many=True).data)
+
+class AdminOrderDetailAPI(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, pk):
+        order = get_object_or_404(
+            Order.objects.select_related("user").prefetch_related("items__product"),
+            pk=pk
+        )
+        order.is_seen_by_admin = True
+        order.save(update_fields=["is_seen_by_admin"])
+        return Response(OrderSerializer(order).data)
+class MarkNotificationReadAPI(APIView):
+    permission_classes = [IsAdminUser]
+
+    def patch(self, request, pk):
+        notif = get_object_or_404(Notification, pk=pk)
+        notif.is_read = True
+        notif.save(update_fields=["is_read"])
+        return Response({"status": "marked as read"})
 
 def ping(request):
     return HttpResponse("OK")

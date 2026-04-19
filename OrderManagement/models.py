@@ -145,3 +145,56 @@ class PendingRazorpayOrder(models.Model):
 
     def __str__(self):
         return f"Pending {self.razorpay_order_id} — {self.user.username}"
+class Notification(models.Model):
+    TYPES = (
+        ("order", "Order"),
+        ("alert", "Alert"),
+        ("info", "Info"),
+    )
+
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    type = models.CharField(max_length=20, choices=TYPES, default="order")
+    is_read = models.BooleanField(default=False)
+    order = models.ForeignKey(
+        Order,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="notifications"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.title} ({'read' if self.is_read else 'unread'})"
+
+
+class NotificationLog(models.Model):
+    CHANNELS = (
+        ("email", "Email"),
+        ("push", "Push"),
+        ("ws", "WebSocket"),
+    )
+    STATUS = (
+        ("success", "Success"),
+        ("failed", "Failed"),
+    )
+
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name="notification_logs"
+    )
+    channel = models.CharField(max_length=20, choices=CHANNELS)
+    status = models.CharField(max_length=10, choices=STATUS)
+    error = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Order #{self.order.id} | {self.channel} | {self.status}"
