@@ -165,7 +165,7 @@ load_dotenv(".env")
 DATABASES = {
     'default': dj_database_url.config(
         default=getenv("DATABASE_URL"),
-        conn_max_age=0,
+        conn_max_age=60,
         ssl_require=True
     )
 }
@@ -246,3 +246,8 @@ SESSION_COOKIE_SECURE = True
 CELERY_BROKER_URL = getenv("REDIS_URL", "redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_TASK_SERIALIZER = "json"
+FIREBASE_CREDENTIALS_PATH = getenv("FIREBASE_CREDENTIALS_PATH", None)
+ADMIN_FCM_TOKEN = getenv("ADMIN_FCM_TOKEN", None)
+BREVO_API_KEY = EMAIL_HOST_PASSWORD
+ADMIN_EMAIL = getenv("ADMIN_EMAIL", getenv("EMAIL_HOST_USER", ""))
+ADMIN_DASHBOARD_URL = getenv("ADMIN_DASHBOARD_URL", "http://localhost:5173")
