@@ -54,7 +54,7 @@ Thank you for shopping with Cartsy!
             </div>
 
             <div style="text-align:center;">
-                <a href="https://cartsy-web.vercel.app/orders" style="
+                <a href="https://svs-three.vercel.app/orders" style="
                     display:inline-block;
                     margin-top:25px;
                     padding:12px 24px;
