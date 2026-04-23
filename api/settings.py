@@ -97,7 +97,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://cartsy-rho.vercel.app",
     "https://cartsy-frontend.onrender.com",
     "https://cartsy-web.vercel.app",
-    "https://svs-three.vercel.app"
+    "https://svs-three.vercel.app",
     "svs-90l6.onrender.com",
 ]
 CORS_ALLOW_HEADERS = [
@@ -114,7 +114,7 @@ CORS_ALLOW_HEADERS = [
 CSRF_TRUSTED_ORIGINS = [
     "https://cartsy-frontend.onrender.com",
     "https://cartsy-web.vercel.app",
-    "https://svs-three.vercel.app"
+    "https://svs-three.vercel.app",
     "http://localhost:3000",
 ]
 CORS_ALLOW_METHODS = [
