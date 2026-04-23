@@ -6,8 +6,12 @@ class product(models.Model):
     description = models.TextField()
     price = models.FloatField()
     image = models.ImageField(upload_to="products/")
+    stock        = models.PositiveIntegerField(default=0)
     def __str__(self):
         return self.product_name
+    @property
+    def is_in_stock(self):
+        return self.stock > 0
 
 
 class ProductImage(models.Model):
