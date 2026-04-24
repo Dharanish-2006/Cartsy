@@ -147,13 +147,21 @@ WSGI_APPLICATION = 'api.wsgi.app'
 ASGI_APPLICATION = "api.asgi.application"
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+REDIS_URL = getenv("REDIS_URL", None)
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {"hosts": [getenv("REDIS_URL", "redis://localhost:6379")]},
+if REDIS_URL:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {"hosts": [REDIS_URL]},
+        }
     }
-}
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer"
+        }
+    }
 # DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 # AWS_ACCESS_KEY_ID = "2b8235e2512436ee6203a0145b895269"
 # AWS_SECRET_ACCESS_KEY = "2221356fb6d0a8df41ad3bc363dfd159250e333cec170787156e6cb1229852a0"
