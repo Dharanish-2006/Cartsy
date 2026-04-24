@@ -491,7 +491,39 @@ class CreateProductAPI(APIView):
                 {"error": str(e)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+class AdminProductDetailAPI(APIView):
+    permission_classes = [IsAdminUser]
 
+    def patch(self, request, pk):
+        p = get_object_or_404(product, pk=pk)
+
+        product_name = request.data.get("product_name", p.product_name)
+        description  = request.data.get("description", p.description)
+        price        = request.data.get("price", p.price)
+        category_id  = request.data.get("category_id")
+
+        p.product_name = product_name
+        p.description  = description
+        p.price        = price
+
+        if category_id:
+            try:
+                p.category = Category.objects.get(id=int(category_id))
+            except:
+                return Response({"error": "Invalid category"}, status=400)
+
+        if "images" in request.FILES:
+            img = request.FILES.getlist("images")[0]
+            p.image = img
+
+        p.save()
+
+        return Response({"message": "Product updated successfully"})
+
+    def delete(self, request, pk):
+        p = get_object_or_404(product, pk=pk)
+        p.delete()
+        return Response({"message": "Product deleted successfully"})
 
 class UpdateProductImagesAPI(APIView):
     """Admin endpoint to reorder, add, or delete product images."""

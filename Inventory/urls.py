@@ -20,5 +20,6 @@ urlpatterns = [
     path("api/admin/orders/<int:pk>/status/", UpdateOrderStatusAPI.as_view()),
     path("api/admin/notifications/", AdminNotificationsAPI.as_view()),
     path("api/admin/notifications/<int:pk>/read/", MarkNotificationReadAPI.as_view()),
+    path("api/admin/products/<int:pk>/", AdminProductDetailAPI.as_view()),
     path("ping/", ping),
 ]
