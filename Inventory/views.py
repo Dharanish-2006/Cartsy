@@ -3,7 +3,7 @@ from threading import Thread
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.db import transaction
+from django.db import transaction, models
 import razorpay
 
 from rest_framework import status
@@ -358,6 +358,222 @@ class OrdersAPI(APIView):
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
 
+
+
+class CreateCategoryAPI(APIView):
+    """Admin endpoint to create new product categories."""
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        name = request.data.get("name", "").strip()
+        description = request.data.get("description", "").strip()
+        icon = request.data.get("icon", "🛍️").strip()
+
+        if not name:
+            return Response(
+                {"error": "name is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Check for duplicate category names
+        if Category.objects.filter(name__iexact=name).exists():
+            return Response(
+                {"error": "Category with this name already exists"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            category = Category.objects.create(
+                name=name,
+                description=description,
+                icon=icon,
+            )
+            serializer = CategorySerializer(category)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class CreateProductAPI(APIView):
+    """Admin endpoint to create new products with images."""
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        product_name = request.data.get("product_name", "").strip()
+        description = request.data.get("description", "").strip()
+        price = request.data.get("price")
+        category_id = request.data.get("category_id")
+        images = request.FILES.getlist("images")
+
+        # Validate required fields
+        if not product_name:
+            return Response(
+                {"error": "product_name is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not description:
+            return Response(
+                {"error": "description is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if price is None:
+            return Response(
+                {"error": "price is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not images:
+            return Response(
+                {"error": "At least one image is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Validate price
+        try:
+            price = float(price)
+            if price <= 0:
+                raise ValueError
+        except (ValueError, TypeError):
+            return Response(
+                {"error": "price must be a positive number"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Validate category exists if provided
+        category = None
+        if category_id:
+            try:
+                category = Category.objects.get(id=category_id)
+            except Category.DoesNotExist:
+                return Response(
+                    {"error": f"Category with id {category_id} does not exist"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        # Validate image file size (max 5MB per image)
+        max_size = 5 * 1024 * 1024  # 5MB
+        for img in images:
+            if img.size > max_size:
+                return Response(
+                    {"error": f"Image {img.name} exceeds 5MB size limit"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        # Create product with images atomically
+        try:
+            with transaction.atomic():
+                new_product = product.objects.create(
+                    product_name=product_name,
+                    description=description,
+                    price=price,
+                    category=category,
+                    image=images[0],  # Set first image as main image
+                )
+
+                # Create ProductImage entries for all images
+                for order, img in enumerate(images):
+                    ProductImage.objects.create(
+                        product=new_product,
+                        image=img,
+                        order=order,
+                    )
+
+                # Return full product with images
+                serializer = ProductSerializer(
+                    new_product, context={"request": request}
+                )
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class UpdateProductImagesAPI(APIView):
+    """Admin endpoint to reorder, add, or delete product images."""
+    permission_classes = [IsAdminUser]
+
+    def patch(self, request, pk):
+        try:
+            prod = product.objects.get(id=pk)
+        except product.DoesNotExist:
+            return Response(
+                {"error": "Product not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Handle image reordering
+        images_data = request.data.get("images", [])
+        if images_data:
+            try:
+                with transaction.atomic():
+                    for img_data in images_data:
+                        img_id = img_data.get("id")
+                        new_order = img_data.get("order")
+                        if img_id and new_order is not None:
+                            ProductImage.objects.filter(
+                                id=img_id, product=prod
+                            ).update(order=new_order)
+                    return Response(
+                        ProductSerializer(prod, context={"request": request}).data,
+                        status=status.HTTP_200_OK,
+                    )
+            except Exception as e:
+                return Response(
+                    {"error": str(e)},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        # Handle new image uploads
+        images = request.FILES.getlist("images")
+        if images:
+            try:
+                with transaction.atomic():
+                    # Get next order number
+                    max_order = (
+                        ProductImage.objects.filter(product=prod).aggregate(
+                            max_order=models.Max("order")
+                        )["max_order"]
+                        or -1
+                    )
+
+                    # Validate image file size
+                    max_size = 5 * 1024 * 1024  # 5MB
+                    for img in images:
+                        if img.size > max_size:
+                            return Response(
+                                {
+                                    "error": f"Image {img.name} exceeds 5MB size limit"
+                                },
+                                status=status.HTTP_400_BAD_REQUEST,
+                            )
+
+                    # Create new ProductImage entries
+                    for idx, img in enumerate(images):
+                        ProductImage.objects.create(
+                            product=prod,
+                            image=img,
+                            order=max_order + idx + 1,
+                        )
+
+                    return Response(
+                        ProductSerializer(prod, context={"request": request}).data,
+                        status=status.HTTP_200_OK,
+                    )
+            except Exception as e:
+                return Response(
+                    {"error": str(e)},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        return Response(
+            {"error": "No images or reorder data provided"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 class AdminOrderListAPI(APIView):

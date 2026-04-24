@@ -35,4 +35,8 @@ def product_detail(request, pk):
         cart_item.save()
         return redirect("cart")
 
-    return render(request, "product_detail.html", {"product": item})
+    images = item.images.all().order_by("order")
+    return render(request, "product_detail.html", {
+        "product": item,
+        "images": images
+    })
