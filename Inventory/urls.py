@@ -20,4 +20,5 @@ urlpatterns = [
     path("api/admin/notifications/<int:pk>/read/",MarkNotificationReadAPI.as_view()),
     path("api/admin/products/",AdminProductListAPI.as_view()),
     path("api/admin/products/<int:pk>/stock/",AdminProductStockAPI.as_view()),
+    path('admin/categories/', AdminCategoryListAPI.as_view()),
 ]

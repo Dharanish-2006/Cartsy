@@ -612,7 +612,13 @@ class UpdateOrderStatusAPI(APIView):
         order.save()
         return Response({"status": order.status})
 
+class AdminCategoryListAPI(APIView):
+    permission_classes = [IsAdminUser]
 
+    def get(self, request):
+        categories = Category.objects.all().order_by("name")
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data)
 class AdminNotificationsAPI(APIView):
     permission_classes = [IsAdminUser]
 
