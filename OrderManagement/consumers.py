@@ -24,4 +24,9 @@ class AdminNotificationConsumer(AsyncWebsocketConsumer):
             "order_id": event["order_id"],
             "amount": event["amount"],
             "customer": event["customer"],
+            "full_name":event["full_name"],
+            "address":event["address"],
+            "city":event["city"],
+            "postal_code":event["postal_code"],
+            "country":event["country"]
         }))

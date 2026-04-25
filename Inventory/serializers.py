@@ -81,7 +81,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model  = Order
-        fields = ["id", "created_at","address" ,"city" ,"postal_code", "status", "total_amount", "items"]
+        fields = ["id", "created_at","address" ,"city" ,"postal_code", "full_name","country" , "status", "total_amount", "items"]
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Notification
