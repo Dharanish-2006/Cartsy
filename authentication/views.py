@@ -13,26 +13,17 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import EmailOTP, User
 from OrderManagement.utils.otp import generate_otp
-from django.core.mail import send_mail
 from django.conf import settings
+
+from threading import Thread
+
+BREVO_URL = "https://api.brevo.com/v3/smtp/email"
+
 
 def send_otp_email(email, otp):
     subject = "Email verification for your Cartsy account"
 
-    message = f"""
-Cartsy Email Verification
-
-Hello user,
-
-Your verification code is: {otp}
-
-This code will expire in 5 minutes.
-
-If you did not request this, you can ignore this email.
-
-- Cartsy Team
-"""
-    html_content= html_content = f"""
+    html_content = f"""
     <html>
     <body style="margin:0; padding:0; background:#0B0B1A; font-family:Arial, sans-serif; color:white;">
         
@@ -91,14 +82,32 @@ If you did not request this, you can ignore this email.
     </html>
     """
 
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [email],
-        fail_silently=False,
-        html_message=html_content
-    )    
+    def _send():
+        try:
+            payload = {
+                "sender": {
+                    "name": "Cartsy",
+                    "email": settings.DEFAULT_FROM_EMAIL,
+                },
+                "to": [{"email": email}],
+                "subject": subject,
+                "htmlContent": html_content,
+            }
+
+            headers = {
+                "accept": "application/json",
+                "api-key": settings.BREVO_API_KEY,
+                "content-type": "application/json",
+            }
+
+            resp = requests.post(BREVO_URL, json=payload, headers=headers, timeout=10)
+            resp.raise_for_status()
+
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"OTP email failed for {email}: {e}")
+
+    Thread(target=_send, daemon=True).start()
 class SignupAPI(APIView):
     def post(self, request):
         email = request.data.get("email", "").strip().lower()
