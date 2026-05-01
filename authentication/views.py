@@ -96,7 +96,7 @@ def send_otp_email(email, otp):
 
             headers = {
                 "accept": "application/json",
-                "api-key": settings.BREVO_API_KEY,
+                "api-key": settings.EMAIL_HOST_PASSWORD,
                 "content-type": "application/json",
             }
 
