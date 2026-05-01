@@ -87,7 +87,7 @@ def send_otp_email(email, otp):
             payload = {
                 "sender": {
                     "name": "Cartsy",
-                    "email": settings.DEFAULT_FROM_EMAIL,
+                    "email": "dharanishwar.2006@gmail.com",
                 },
                 "to": [{"email": email}],
                 "subject": subject,

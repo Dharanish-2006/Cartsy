@@ -1,0 +1,13 @@
+ADMIN_DASHBOARD_URL=http://localhost:5173
+ADMIN_EMAIL=dharanishwar.2006@gmail.com
+BREVO_API_KEY=xkeysib-10012661
+DATABASE_URL="postgresql://neondb_owner:npg_DwpmLaZ4b0zB@ep-young-
+EMAIL_HOST_PASSWORD=xsmtpsib-10012661ea8
+EMAIL_HOST_USER=dharanishwar.2006@gmail.com
+RAZORPAY_KEY_ID=rzp_te
+RAZORPAY_KEY_SECRET=hAuleV
+REDIS_URL=rediss://default:gQAAAAAAAZj
+ZOHO_API_DOMAIN=https://www.zohoapis.in
+ZOHO_CLIENT_ID=1000.113
+ZOHO_CLIENT_SECRET=c31b9bb9176dc7de
+ZOHO_REFRESH_TOKEN=1000.c416a0c5a
