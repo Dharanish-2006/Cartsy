@@ -103,6 +103,9 @@ def send_otp_email(email, otp):
             resp = requests.post(BREVO_URL, json=payload, headers=headers, timeout=10)
             resp.raise_for_status()
 
+            import logging
+            logging.getLogger(__name__).info(f"Using API key: {settings.BREVO_API_KEY[:10]}...")
+
         except Exception as e:
             import logging
             logging.getLogger(__name__).error(f"OTP email failed for {email}: {e}")
