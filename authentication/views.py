@@ -21,7 +21,7 @@ BREVO_URL = "https://api.brevo.com/v3/smtp/email"
 
 
 def send_otp_email(email, otp):
-    subject = "Email verification for your Cartsy account"
+    subject = "Email verification for your SVS Collections account"
 
     html_content = f"""
     <html>
@@ -36,7 +36,7 @@ def send_otp_email(email, otp):
                 font-size:28px;
                 margin-bottom:10px;
             ">
-                Cartsy
+                SVS Collections
             </h1>
 
             <p style="color:#aaa; margin-bottom:20px;">
@@ -86,7 +86,7 @@ def send_otp_email(email, otp):
         try:
             payload = {
                 "sender": {
-                    "name": "Cartsy",
+                    "name": "SVS Collections",
                     "email": "dharanishwar.2006@gmail.com",
                 },
                 "to": [{"email": email}],

@@ -16,7 +16,7 @@ def send_admin_order_email(order):
         for item in order.items.all()
     )
     payload = {
-        "sender": {"name": "Cartsy Alerts", "email": settings.DEFAULT_FROM_EMAIL},
+        "sender": {"name": "SVS Collections Alerts", "email": settings.DEFAULT_FROM_EMAIL},
         "to": [{"email": settings.ADMIN_EMAIL}],
         "subject": f"🛒 New Order #{order.id} — ₹{order.total_amount}",
         "htmlContent": f"""
@@ -36,7 +36,7 @@ def send_admin_order_email(order):
 
 def send_customer_confirmation_email(order):
     payload = {
-        "sender": {"name": "Cartsy", "email": settings.DEFAULT_FROM_EMAIL},
+        "sender": {"name": "SVS Collections", "email": settings.DEFAULT_FROM_EMAIL},
         "to": [{"email": order.user.email}],
         "subject": f"Order Confirmed #{order.id} 🎉",
         "htmlContent": f"""
