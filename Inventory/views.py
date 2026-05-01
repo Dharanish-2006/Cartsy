@@ -704,6 +704,14 @@ class AdminProductStockAPI(APIView):
             "name":  p.product_name,
             "stock": p.stock,
         })
+class PublicCategoryListAPI(APIView):
+    permission_classes = [AllowAny]
+ 
+    def get(self, request):
+        categories = Category.objects.all().order_by("name")
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data)
+ 
 
 def ping(request):
     return HttpResponse("OK")
