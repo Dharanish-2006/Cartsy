@@ -9,6 +9,7 @@ billiard==4.2.4
 boto3==1.42.73
 botocore==1.42.73
 CacheControl==0.14.4
+cloudinary==1.37.0
 cbor2==5.9.0
 celery==5.6.3
 certifi==2026.2.25

@@ -16,6 +16,9 @@ from urllib.parse import urlparse
 import dj_database_url
 from dotenv import load_dotenv
 from datetime import timedelta
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -45,6 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
+    'cloudinary',
     'FrontEnd',
     'Inventory',
     'OrderManagement',
@@ -177,6 +182,15 @@ else:
 # Note: Django modules for using databases are not support in serverless
 # environments like Vercel. You can use a database over HTTP, hosted elsewhere.
 load_dotenv(".env")
+
+cloudinary.config(
+    cloud_name=getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=getenv("CLOUDINARY_API_KEY"),
+    api_secret=getenv("CLOUDINARY_API_SECRET")
+)
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
 DATABASES = {
     'default': dj_database_url.config(
         default=getenv("DATABASE_URL"),
