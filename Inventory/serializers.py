@@ -22,7 +22,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if obj.image:
             url = obj.image.url
-            return request.build_absolute_uri(url) if request else url
+            return url
         return None
 
 
@@ -53,7 +53,7 @@ class ProductSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if obj.image:
             url = obj.image.url
-            return request.build_absolute_uri(url) if request else url
+            return url
         return None
 
 

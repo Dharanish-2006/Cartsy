@@ -1,6 +1,6 @@
 from django.db import models
 from authentication.models import User
-
+from cloudinary.models import CloudinaryField
 class Category(models.Model):
     name        = models.CharField(max_length=100, unique=True)
     slug        = models.SlugField(max_length=120, unique=True, blank=True)
@@ -25,7 +25,7 @@ class product(models.Model):
     product_name = models.CharField(max_length=200)
     description = models.TextField()
     price = models.FloatField()
-    image = models.ImageField(upload_to="products/")
+    image        = CloudinaryField('image', folder='products/')
     stock        = models.PositiveIntegerField(default=0)
     category     = models.ForeignKey(
         Category,
@@ -43,7 +43,7 @@ class product(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(product, related_name="images", on_delete=models.CASCADE)
-    image = models.ImageField(upload_to="products/")
+    image   = CloudinaryField('image', folder='products/')  
     order   = models.PositiveIntegerField(default=0) 
     class Meta:
         ordering = ['order', 'id']
