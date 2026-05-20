@@ -73,6 +73,11 @@ def HomeAPI(request):
             "image":        request.build_absolute_uri(p.image.url) if p.image else None,
             "stock":        p.stock,
             "is_in_stock":  p.is_in_stock,
+            "category": {
+                "id":   p.category.id,
+                "slug": p.category.slug,
+                "name": p.category.name,
+            } if p.category else None,
         }
         for p in products
     ]
