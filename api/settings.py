@@ -99,6 +99,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:3000",
+    "https://cartsy-ht0x.onrender.com",
     "https://cartsy-rho.vercel.app",
     "https://cartsy-frontend.onrender.com",
     "https://cartsy-web.vercel.app",
