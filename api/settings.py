@@ -181,7 +181,7 @@ else:
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 # Note: Django modules for using databases are not support in serverless
 # environments like Vercel. You can use a database over HTTP, hosted elsewhere.
-load_dotenv(".env")
+load_dotenv(BASE_DIR / ".env")
 
 cloudinary.config(
     cloud_name=getenv("CLOUDINARY_CLOUD_NAME"),
