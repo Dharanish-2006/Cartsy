@@ -4,62 +4,12 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from Inventory.models import Cart
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from Inventory.models import product as Product, ProductImage
 from .models import Order, OrderItem, Payment
 from .forms import ProductForm, ProductImageForm
 from OrderManagement.forms import ProductForm, ProductImageFormSet
 
-@login_required
-def product_list(request):
-    products = Product.objects.all()
-    return render(request, "OrderManagement/product_list.html", {"products": products})
-
-
-@login_required
-def product_create(request):
-    if request.method == "POST":
-        form = ProductForm(request.POST, request.FILES)
-        if form.is_valid():
-            product = form.save()
-            formset = ProductImageFormSet(request.POST, request.FILES, instance=product)
-            if formset.is_valid():
-                formset.save()
-                return redirect("product_list")
-        else:
-            formset = ProductImageFormSet()
-    else:
-        form = ProductForm()
-        formset = ProductImageFormSet()
-
-    return render(request, "OrderManagement/product_form.html", {"form": form, "formset": formset})
-
-
-@login_required
-def product_edit(request, pk):
-    item = get_object_or_404(Product, pk=pk)
-    if request.method == "POST":
-        form = ProductForm(request.POST, request.FILES, instance=item)
-        formset = ProductImageFormSet(request.POST, request.FILES, instance=item)
-        if form.is_valid() and formset.is_valid():
-            form.save()
-            formset.save()
-            return redirect("product_list")
-    else:
-        form = ProductForm(instance=item)
-        formset = ProductImageFormSet(instance=item)
-
-    return render(request, "OrderManagement/product_edit.html", {"form": form, "formset": formset})
-
-
-@login_required
-def product_delete(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-    if request.method == "POST":
-        product.delete()
-        return redirect("product_list")
-    return render(request, "OrderManagement/product_delete.html", {"product": product})
 
 @login_required
 def create_cod_order(request):
@@ -167,8 +117,3 @@ def verify_payment(request):
     items.delete()
     send_order_confirmation_email(order)
     return JsonResponse({"status": "success"})
-
-
-@login_required
-def order_success(request):
-    return render(request, "order_confirmation.html")
